@@ -41,7 +41,7 @@ The project includes automated deployment via GitHub Actions using Azure Bicep t
 2. **Service Principal**: Create an Azure service principal for GitHub Actions:
 
    ```bash
-   az ad sp create-for-rbac --name "devhabit-api-sp" --role Contributor --scopes /subscriptions/YOUR_SUBSCRIPTION_ID
+   az ad sp create-for-rbac --name "devhabit-api-sp" --role Contributor --scopes /subscriptions/YOUR_SUBSCRIPTION_ID --sdk-auth
    ```
 
 3. **GitHub Secrets**: Add the following secrets to your GitHub repository (Settings > Secrets and variables > Actions):
