@@ -8,6 +8,9 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# ASPIRECOMPUTE001: Compute related types and members are for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+dotnet_diagnostic.ASPIRECOMPUTE001.severity = none
+
 # IDE0290: Use primary constructor
 dotnet_diagnostic.IDE0290.severity = none
 
@@ -101,5 +104,9 @@ dotnet_diagnostic.CA1515.severity = none
 dotnet_diagnostic.CA1515.severity = none
 
 [Program.cs]
+# CA2007: Do not directly await a Task without calling ConfigureAwait
+dotnet_diagnostic.CA2007.severity = none
+
+[AppHost.cs]
 # CA2007: Do not directly await a Task without calling ConfigureAwait
 dotnet_diagnostic.CA2007.severity = none
