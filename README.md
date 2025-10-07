@@ -58,7 +58,7 @@ The deployment uses deterministic naming with the following pattern:
 - App Service: `{rootName}-appsvc`
 - Resource Group: `{rootName}-rg`
 
-Default root name: `tq123_devhabit`
+Default root name: `tq123devhabit`
 
 ⚠️ **Important**: Choose a unique root name to avoid naming conflicts with existing Azure resources. The root name becomes part of all resource names and should be globally unique within your Azure subscription. The root name must contain only letters, numbers, and underscores (no hyphens).
 
@@ -74,7 +74,7 @@ The GitHub Action (`deploy.yml`) runs automatically on:
 1. Go to your GitHub repository > Actions tab
 2. Select "Deploy to Azure" workflow
 3. Click "Run workflow"
-4. Enter the desired root name (default: `tq123-devhabit`)
+4. Enter the desired root name (default: `tq123devhabit`)
 5. Click "Run workflow"
 
 This will:
