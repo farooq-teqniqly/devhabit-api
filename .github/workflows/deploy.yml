@@ -40,10 +40,20 @@ jobs:
         template: deployment/main.bicep
         parameters: rootName='${{ env.ROOT_NAME }}'
 
+    - name: Deploy infrastructure
+      id: infra_deploy
+      uses: azure/arm-deploy@v1
+      with:
+        scope: subscription
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        region: westus2
+        template: deployment/main.bicep
+        parameters: rootName='${{ env.ROOT_NAME }}'
+
     - name: Get deployment outputs
       id: outputs
       run: |
-        outputs=$(az deployment sub show --name azure-arm-deploy --query properties.outputs -o json)
+        outputs=$(az deployment sub show --name ${{ steps.infra_deploy.outputs.deploymentName }} --query properties.outputs -o json)
         echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
         echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
         echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
