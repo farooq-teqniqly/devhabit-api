@@ -58,9 +58,9 @@ The deployment uses deterministic naming with the following pattern:
 - App Service: `{rootName}-appsvc`
 - Resource Group: `{rootName}-rg`
 
-Default root name: `tq123-devhabit`
+Default root name: `tq123_devhabit`
 
-⚠️ **Important**: Choose a unique root name to avoid naming conflicts with existing Azure resources. The root name becomes part of all resource names and should be globally unique within your Azure subscription.
+⚠️ **Important**: Choose a unique root name to avoid naming conflicts with existing Azure resources. The root name becomes part of all resource names and should be globally unique within your Azure subscription. The root name must contain only letters, numbers, and underscores (no hyphens).
 
 ### Triggering Deployment
 

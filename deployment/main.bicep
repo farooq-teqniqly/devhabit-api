@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-@description('The root name used to generate unique resource names')
+@description('The root name used to generate unique resource names (letters, numbers, underscores only - no hyphens)')
 @minLength(3)
 @maxLength(50)
 param rootName string
