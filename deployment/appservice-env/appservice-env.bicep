@@ -16,7 +16,7 @@ resource appservice_env_mi 'Microsoft.ManagedIdentity/userAssignedIdentities@202
 }
 
 resource appservice_env_acr 'Microsoft.ContainerRegistry/registries@2025-04-01' = {
-  name: take('${rootName}-acr', 50)
+  name: take('${rootName}acr', 50)
   location: location
   sku: {
     name: 'Basic'
