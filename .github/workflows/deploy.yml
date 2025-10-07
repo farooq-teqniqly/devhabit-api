@@ -8,7 +8,7 @@ on:
       root_name:
         description: 'Root name for resources (e.g., tq123-devhabit)'
         required: true
-        default: 'tq123-devhabit'
+        default: 'tq123devhabit'
 
 env:
   ROOT_NAME: ${{ github.event.inputs.root_name || 'tq123-devhabit' }}

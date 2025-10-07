@@ -2,7 +2,7 @@ targetScope = 'subscription'
 
 @description('The root name used to generate unique resource names')
 @minLength(3)
-@maxLength(10)
+@maxLength(50)
 param rootName string
 
 @description('The Azure region for resource deployment')

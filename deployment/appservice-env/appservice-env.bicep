@@ -3,7 +3,7 @@ param location string = resourceGroup().location
 
 @description('The root name used to generate unique resource names')
 @minLength(3)
-@maxLength(10)
+@maxLength(50)
 param rootName string
 
 @description('Tags to apply to resources')
