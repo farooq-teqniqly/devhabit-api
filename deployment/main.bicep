@@ -29,6 +29,7 @@ module appservice_env 'appservice-env/appservice-env.bicep' = {
   params: {
     location: location
     rootName: rootName
+    tags: tags
   }
 }
 

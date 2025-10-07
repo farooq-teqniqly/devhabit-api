@@ -6,11 +6,8 @@ param location string = resourceGroup().location
 @maxLength(10)
 param rootName string
 
-param tags object = { 
-  environment: 'production'
-  project: 'devhabit'
-  owner: 'farooq-teqniqly'
-}
+@description('Tags to apply to resources')
+param tags object = {}
 
 resource appservice_env_mi 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: take('${rootName}-mid', 128)
