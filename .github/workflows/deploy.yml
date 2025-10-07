@@ -1,0 +1,81 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      root_name:
+        description: 'Root name for resources (e.g., tq123-devhabit)'
+        required: true
+        default: 'tq123-devhabit'
+
+env:
+  ROOT_NAME: ${{ github.event.inputs.root_name || 'tq123-devhabit' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy infrastructure
+      uses: azure/arm-deploy@v1
+      with:
+        scope: subscription
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        region: westus2
+        template: deployment/main.bicep
+        parameters: rootName='${{ env.ROOT_NAME }}'
+
+    - name: Get deployment outputs
+      id: outputs
+      run: |
+        outputs=$(az deployment sub show --name azure-arm-deploy --query properties.outputs -o json)
+        echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
+        echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
+        echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
+        echo "mi_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID.value')" >> $GITHUB_OUTPUT
+        echo "mi_client_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID.value')" >> $GITHUB_OUTPUT
+
+    - name: Build Docker image
+      run: |
+        cd DevHabit.Api
+        dotnet publish --configuration Release /t:PublishContainer /p:ContainerRepository="${{ env.ROOT_NAME }}-api" /p:ContainerRuntimeIdentifier="linux-x64"
+        cd ..
+
+    - name: Login to ACR
+      run: az acr login --name ${{ steps.outputs.outputs.acr_name }}
+
+    - name: Tag and push image
+      run: |
+        docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+        docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+
+    - name: Deploy webapp
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        resourceGroupName: ${{ env.ROOT_NAME }}-rg
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        template: deployment/devhabit-api/devhabit-api.bicep
+        parameters: |
+          rootName='${{ env.ROOT_NAME }}'
+          appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}'
+          appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}'
+          appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}'
+          appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}'
+          devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest'
+          devhabit_api_containerport='80'

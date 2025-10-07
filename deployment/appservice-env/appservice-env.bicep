@@ -1,18 +1,25 @@
 @description('The location for the resource(s) to be deployed.')
 param location string = resourceGroup().location
 
-param userPrincipalId string = ''
+@description('The root name used to generate unique resource names')
+@minLength(3)
+@maxLength(10)
+param rootName string
 
-param tags object = { }
+param tags object = { 
+  environment: 'production'
+  project: 'devhabit'
+  owner: 'farooq-teqniqly'
+}
 
 resource appservice_env_mi 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: take('appservice_env_mi-${uniqueString(resourceGroup().id)}', 128)
+  name: take('${rootName}-mid', 128)
   location: location
   tags: tags
 }
 
 resource appservice_env_acr 'Microsoft.ContainerRegistry/registries@2025-04-01' = {
-  name: take('appserviceenvacr${uniqueString(resourceGroup().id)}', 50)
+  name: take('${rootName}-acr', 50)
   location: location
   sku: {
     name: 'Basic'
@@ -31,7 +38,7 @@ resource appservice_env_acr_appservice_env_mi_AcrPull 'Microsoft.Authorization/r
 }
 
 resource appservice_env_asplan 'Microsoft.Web/serverfarms@2024-11-01' = {
-  name: take('appserviceenvasplan-${uniqueString(resourceGroup().id)}', 60)
+  name: take('${rootName}-asp', 60)
   location: location
   properties: {
     reserved: true
@@ -41,6 +48,7 @@ resource appservice_env_asplan 'Microsoft.Web/serverfarms@2024-11-01' = {
     name: 'P0V3'
     tier: 'Premium'
   }
+  tags: tags
 }
 
 output name string = appservice_env_asplan.name

@@ -1,32 +1,36 @@
 @description('The location for the resource(s) to be deployed.')
 param location string = resourceGroup().location
 
-param appservice_env_outputs_azure_container_registry_endpoint string
+@description('The root name used to generate unique resource names')
+@minLength(3)
+@maxLength(10)
+param rootName string
 
+@description('The resource ID of the App Service plan')
 param appservice_env_outputs_planid string
 
+@description('The resource ID of the user-assigned managed identity')
 param appservice_env_outputs_azure_container_registry_managed_identity_id string
 
+@description('The client ID of the user-assigned managed identity')
 param appservice_env_outputs_azure_container_registry_managed_identity_client_id string
 
+@description('The full container image URL in the format registry/image:tag')
 param devhabit_api_containerimage string
 
-param devhabit_api_containerport string
+@description('The container port number as a string (for environment variable HTTP_PORTS)')
+param devhabit_api_containerport string = '80'
 
-resource mainContainer 'Microsoft.Web/sites/sitecontainers@2024-11-01' = {
-  name: 'main'
-  properties: {
-    authType: 'UserAssigned'
-    image: devhabit_api_containerimage
-    isMain: true
-    userManagedIdentityClientId: appservice_env_outputs_azure_container_registry_managed_identity_client_id
-  }
-  parent: webapp
+param tags object = { 
+  environment: 'production'
+  project: 'devhabit'
+  owner: 'farooq-teqniqly'
 }
 
 resource webapp 'Microsoft.Web/sites@2024-11-01' = {
-  name: take('${toLower('devhabit-api')}-${uniqueString(resourceGroup().id)}', 60)
+  name: take('${rootName}-appsvc', 60)
   location: location
+  tags: tags
   properties: {
     serverFarmId: appservice_env_outputs_planid
     siteConfig: {
@@ -64,3 +68,24 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
     }
   }
 }
+
+
+resource mainContainer 'Microsoft.Web/sites/sitecontainers@2024-11-01' = {
+  name: 'main'
+  properties: {
+    authType: 'UserAssigned'
+    image: devhabit_api_containerimage
+    isMain: true
+    userManagedIdentityClientId: appservice_env_outputs_azure_container_registry_managed_identity_client_id
+  }
+  parent: webapp
+  
+}
+
+output webAppName string = webapp.name
+
+output webAppId string = webapp.id
+
+output webAppDefaultHostName string = webapp.properties.defaultHostName
+
+output webAppUrl string = 'https://${webapp.properties.defaultHostName}'
