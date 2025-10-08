@@ -37,7 +37,24 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Create resource group
-      run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
+      run: |
+        set -euo pipefail
+        RG="${{ env.ROOT_NAME }}-rg"
+        SUB="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+        LOC="${{ env.LOCATION }}"
+        if az group show --name "$RG" --subscription "$SUB" >/dev/null 2>&1; then
+          current_loc=$(az group show --name "$RG" --subscription "$SUB" --query location -o tsv)
+          if [ "$current_loc" != "$LOC" ]; then
+            echo "Resource group '$RG' exists in '$current_loc', but requested location is '$LOC'." >&2
+            exit 1
+          fi
+          echo "Resource group '$RG' already exists in '$current_loc'."
+        else
+          az group create --name "$RG" --location "$LOC" --subscription "$SUB"
+        fi
+
+    - name: Upgrade Bicep CLI
+      run: az bicep upgrade
 
     - name: Deploy infrastructure
       id: infra_deploy
@@ -47,7 +64,6 @@ jobs:
         resourceGroupName: ${{ env.ROOT_NAME }}-rg
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template: deployment/main.bicep
-        deploymentName: gh-deploy-${{ github.run_number }}
         parameters: rootName='${{ env.ROOT_NAME }}'
 
     - name: Get deployment outputs
