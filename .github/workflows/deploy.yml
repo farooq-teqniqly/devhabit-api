@@ -43,9 +43,9 @@ jobs:
       id: infra_deploy
       uses: azure/arm-deploy@v1
       with:
-        scope: subscription
+        scope: resourcegroup
+        resourceGroupName: ${{ env.ROOT_NAME }}-rg
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        region: westus2
         template: deployment/main.bicep
         deploymentName: gh-deploy-${{ github.run_number }}
         parameters: rootName='${{ env.ROOT_NAME }}'
@@ -53,7 +53,7 @@ jobs:
     - name: Get deployment outputs
       id: outputs
       run: |
-        outputs=$(az deployment sub show --name gh-deploy-${{ github.run_number }} --query properties.outputs -o json)
+        outputs=$(az deployment group show --name gh-deploy-${{ github.run_number }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
         echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
         echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
         echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
