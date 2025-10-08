@@ -49,6 +49,8 @@ The project includes automated deployment via GitHub Actions using Azure Bicep t
 3. **GitHub Secrets**: Add the following secrets to your GitHub repository (Settings > Secrets and variables > Actions):
    - `AZURE_CREDENTIALS`: The complete JSON output from the service principal creation
    - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID
+   - `SQL_USERNAME`: The admin username for the SQL server (e.g., 'sqladmin')
+   - `SQL_PASSWORD`: The admin password for the SQL server (must meet Azure SQL password requirements)
 
 ### Resource Naming
 
@@ -58,6 +60,7 @@ The deployment uses deterministic naming with the following pattern:
 - Container Registry: `{rootName}-acr`
 - App Service Plan: `{rootName}-asp`
 - App Service: `{rootName}-appsvc`
+- SQL Server: `{rootName}-sql`
 - Resource Group: `{rootName}-rg`
 
 Default root name: `tq123devhabit`

@@ -59,3 +59,5 @@ output AZURE_CONTAINER_REGISTRY_ENDPOINT string = appservice_env_acr.properties.
 output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID string = appservice_env_mi.id
 
 output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID string = appservice_env_mi.properties.clientId
+
+output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_PRINCIPAL_ID string = appservice_env_mi.properties.principalId
