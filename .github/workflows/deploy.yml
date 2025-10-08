@@ -46,11 +46,10 @@ jobs:
     - name: Deploy Infrastructure
       id: deploy
       run: |
-        TIMESTAMP=$(date +%s)
-        DEPLOYMENT_NAME="${{ env.ROOT_NAME }}-deploy-infra-$TIMESTAMP"
+        DEPLOYMENT_NAME="${{ env.ROOT_NAME }}-deploy-infra123"
         echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
         az deployment group create \
-          --name "$DEPLOYMENT_NAME" \
+          --name "${{ env.ROOT_NAME }}-deploy-infra123" \
           --resource-group ${{ env.ROOT_NAME }}-rg \
           --template-file deployment/main.bicep \
           --parameters \
