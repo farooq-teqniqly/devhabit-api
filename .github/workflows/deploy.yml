@@ -46,7 +46,8 @@ jobs:
     - name: Deploy Infrastructure
       id: deploy
       run: |
-        DEPLOYMENT_NAME="${{ env.ROOT_NAME }}-deploy-infra-$(date +%s)"
+        TIMESTAMP=$(date +%s)
+        DEPLOYMENT_NAME="${{ env.ROOT_NAME }}-deploy-infra-$TIMESTAMP"
         echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
         az deployment group create \
           --name "$DEPLOYMENT_NAME" \
