@@ -18,6 +18,7 @@ env:
   ROOT_NAME: ${{ github.event.inputs.root_name || 'tq123devhabit' }}
   LOCATION: ${{ github.event.inputs.location || 'westus2' }}
 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -37,40 +38,28 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Create resource group
-      run: |
-        set -euo pipefail
-        RG="${{ env.ROOT_NAME }}-rg"
-        SUB="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-        LOC="${{ env.LOCATION }}"
-        if az group show --name "$RG" --subscription "$SUB" >/dev/null 2>&1; then
-          current_loc=$(az group show --name "$RG" --subscription "$SUB" --query location -o tsv)
-          if [ "$current_loc" != "$LOC" ]; then
-            echo "Resource group '$RG' exists in '$current_loc', but requested location is '$LOC'." >&2
-            exit 1
-          fi
-          echo "Resource group '$RG' already exists in '$current_loc'."
-        else
-          az group create --name "$RG" --location "$LOC" --subscription "$SUB"
-        fi
+      run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
 
     - name: Upgrade Bicep CLI
       run: az bicep upgrade
 
-    - name: Deploy infrastructure
-      id: infra_deploy
-      uses: azure/arm-deploy@v1
-      with:
-        scope: resourcegroup
-        resourceGroupName: ${{ env.ROOT_NAME }}-rg
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template: deployment/main.bicep
-        parameters: rootName='${{ env.ROOT_NAME }}'
-        failOnStdErr: false
+    - name: Deploy Infrastructure
+      id: deploy
+      run: |
+        DEPLOYMENT_NAME="${{ env.ROOT_NAME }}-deploy-infra-$(date +%s)"
+        echo "deployment_name=$DEPLOYMENT_NAME" >> $GITHUB_OUTPUT
+        az deployment group create \
+          --name "$DEPLOYMENT_NAME" \
+          --resource-group ${{ env.ROOT_NAME }}-rg \
+          --template-file deployment/main.bicep \
+          --parameters \
+            rootName=${{ env.ROOT_NAME }}
+
 
     - name: Get deployment outputs
       id: outputs
       run: |
-        outputs=$(az deployment group show --name gh-deploy-${{ github.run_number }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
+        outputs=$(az deployment group show --name ${{ steps.deploy.outputs.deployment_name }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
         echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
         echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
         echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
@@ -90,20 +79,18 @@ jobs:
       run: |
         docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
         docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
-
+    
     - name: Deploy webapp
-      uses: azure/arm-deploy@v1
-      with:
-        scope: resourcegroup
-        resourceGroupName: ${{ env.ROOT_NAME }}-rg
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template: deployment/devhabit-api/devhabit-api.bicep
-        parameters: |
-          rootName='${{ env.ROOT_NAME }}'
-          appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}'
-          appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}'
-          appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}'
-          appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}'
-          devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest'
-          devhabit_api_containerport='80'
-        failOnStdErr: false
+      run: |
+        az deployment group create \
+          --name "${{ env.ROOT_NAME }}-deploy-webapp-$(date +%s)" \
+          --resource-group ${{ env.ROOT_NAME }}-rg \
+          --template-file devhabit-api/devhabit-api.bicep \
+          --parameters \
+            rootName=${{ env.ROOT_NAME }} \
+            appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}' \
+            appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
+            appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
+            appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
+            devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
+            devhabit_api_containerport='80'
