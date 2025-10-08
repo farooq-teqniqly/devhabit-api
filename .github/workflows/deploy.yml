@@ -87,7 +87,6 @@ jobs:
           --template-file deployment/devhabit-api/devhabit-api.bicep \
           --parameters \
             rootName=${{ env.ROOT_NAME }} \
-            appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}' \
             appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
             appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
             appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
