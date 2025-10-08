@@ -2,6 +2,10 @@ name: Deploy to Azure
 
 on:
   push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'deployment/**/*.bicep'
     tags:
       - 'v*'
   workflow_dispatch:
