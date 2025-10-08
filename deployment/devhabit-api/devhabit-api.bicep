@@ -19,7 +19,7 @@ param appservice_env_outputs_azure_container_registry_managed_identity_client_id
 param devhabit_api_containerimage string
 
 @description('The container port number as a string (for environment variable HTTP_PORTS)')
-param devhabit_api_containerport string = '80'
+param devhabit_api_containerport string = '8080'
 
 param tags object = { 
   environment: 'production'
