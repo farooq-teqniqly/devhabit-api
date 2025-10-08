@@ -1,15 +1,10 @@
-targetScope = 'subscription'
-
 @description('The root name used to generate unique resource names (letters, numbers, underscores only - no hyphens)')
 @minLength(3)
-@maxLength(50)
+@maxLength(30)
 param rootName string
 
 @description('The Azure region for resource deployment')
-param location string = 'westus2'
-
-@description('The name of the resource group to create')
-param resourceGroupName string = '${rootName}-rg'
+param location string = resourceGroup().location
 
 param tags object = { 
   environment: 'production'
@@ -17,15 +12,8 @@ param tags object = {
   owner: 'farooq-teqniqly'
 }
 
-resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
-  location: location
-  tags: tags
-}
-
 module appservice_env 'appservice-env/appservice-env.bicep' = {
   name: 'appservice-env'
-  scope: rg
   params: {
     location: location
     rootName: rootName
