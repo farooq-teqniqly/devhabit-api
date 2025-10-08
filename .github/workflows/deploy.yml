@@ -92,5 +92,5 @@ jobs:
             appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
             appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
             devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
-            devhabit_api_containerport='80'
+            devhabit_api_containerport='80' \
           --debug
