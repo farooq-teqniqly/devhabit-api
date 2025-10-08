@@ -37,6 +37,10 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Get commit hash
+      id: commit
+      run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
     - name: Create resource group
       run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
 
@@ -47,7 +51,7 @@ jobs:
       id: deploy
       run: |
         az deployment group create \
-          --name "${{ env.ROOT_NAME }}-deploy-infra123" \
+          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
           --resource-group ${{ env.ROOT_NAME }}-rg \
           --template-file deployment/main.bicep \
           --parameters \
@@ -58,7 +62,7 @@ jobs:
     - name: Get deployment outputs
       id: outputs
       run: |
-        outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra123 --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
+        outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
         echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
         echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
         echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
@@ -82,7 +86,7 @@ jobs:
     - name: Deploy webapp
       run: |
         az deployment group create \
-          --name "${{ env.ROOT_NAME }}-deploy-webapp123" \
+          --name "${{ env.ROOT_NAME }}-deploy-webapp-${{ steps.commit.outputs.hash }}" \
           --resource-group ${{ env.ROOT_NAME }}-rg \
           --template-file deployment/devhabit-api/devhabit-api.bicep \
           --parameters \
