@@ -84,7 +84,7 @@ jobs:
         az deployment group create \
           --name "${{ env.ROOT_NAME }}-deploy-webapp123" \
           --resource-group ${{ env.ROOT_NAME }}-rg \
-          --template-file devhabit-api/devhabit-api.bicep \
+          --template-file deployment/devhabit-api/devhabit-api.bicep \
           --parameters \
             rootName=${{ env.ROOT_NAME }} \
             appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}' \
