@@ -42,6 +42,8 @@ The project includes automated deployment via GitHub Actions using Azure Bicep t
 
    ```bash
    az ad sp create-for-rbac --name "devhabit-api-sp" --role Contributor --scopes /subscriptions/YOUR_SUBSCRIPTION_ID --sdk-auth
+
+   az role assignment create --assignee $(az ad sp list --display-name "devhabit-api-sp" --query "[].appId" -o tsv) --role "User Access Administrator" --scope /subscriptions/YOUR_SUBSCRIPTION_ID
    ```
 
 3. **GitHub Secrets**: Add the following secrets to your GitHub repository (Settings > Secrets and variables > Actions):

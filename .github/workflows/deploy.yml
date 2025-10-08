@@ -55,41 +55,42 @@ jobs:
           --debug
 
 
-    # - name: Get deployment outputs
-    #   id: outputs
-    #   run: |
-    #     outputs=$(az deployment group show --name ${{ steps.deploy.outputs.deployment_name }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
-    #     echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
-    #     echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
-    #     echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
-    #     echo "mi_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID.value')" >> $GITHUB_OUTPUT
-    #     echo "mi_client_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID.value')" >> $GITHUB_OUTPUT
+    - name: Get deployment outputs
+      id: outputs
+      run: |
+        outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra123 --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
+        echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
+        echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
+        echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
+        echo "mi_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID.value')" >> $GITHUB_OUTPUT
+        echo "mi_client_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID.value')" >> $GITHUB_OUTPUT
 
-    # - name: Build Docker image
-    #   run: |
-    #     cd DevHabit.Api
-    #     dotnet publish --configuration Release /t:PublishContainer /p:ContainerRepository="${{ env.ROOT_NAME }}-api" /p:ContainerRuntimeIdentifier="linux-x64"
-    #     cd ..
+    - name: Build Docker image
+      run: |
+        cd DevHabit.Api
+        dotnet publish --configuration Release /t:PublishContainer /p:ContainerRepository="${{ env.ROOT_NAME }}-api" /p:ContainerRuntimeIdentifier="linux-x64"
+        cd ..
 
-    # - name: Login to ACR
-    #   run: az acr login --name ${{ steps.outputs.outputs.acr_name }}
+    - name: Login to ACR
+      run: az acr login --name ${{ steps.outputs.outputs.acr_name }}
 
-    # - name: Tag and push image
-    #   run: |
-    #     docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
-    #     docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+    - name: Tag and push image
+      run: |
+        docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+        docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
     
-    # - name: Deploy webapp
-    #   run: |
-    #     az deployment group create \
-    #       --name "${{ env.ROOT_NAME }}-deploy-webapp-$(date +%s)" \
-    #       --resource-group ${{ env.ROOT_NAME }}-rg \
-    #       --template-file devhabit-api/devhabit-api.bicep \
-    #       --parameters \
-    #         rootName=${{ env.ROOT_NAME }} \
-    #         appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}' \
-    #         appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
-    #         appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
-    #         appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
-    #         devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
-    #         devhabit_api_containerport='80'
+    - name: Deploy webapp
+      run: |
+        az deployment group create \
+          --name "${{ env.ROOT_NAME }}-deploy-webapp123" \
+          --resource-group ${{ env.ROOT_NAME }}-rg \
+          --template-file devhabit-api/devhabit-api.bicep \
+          --parameters \
+            rootName=${{ env.ROOT_NAME }} \
+            appservice_env_outputs_azure_container_registry_endpoint='${{ steps.outputs.outputs.acr_endpoint }}' \
+            appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
+            appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
+            appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
+            devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
+            devhabit_api_containerport='80'
+          --debug
