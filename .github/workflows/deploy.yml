@@ -9,9 +9,14 @@ on:
         description: 'Root name for resources (e.g., tq123devhabit)'
         required: true
         default: 'tq123devhabit'
+      location:
+        description: 'Azure region for resources (e.g., westus2)'
+        required: true
+        default: 'westus2'
 
 env:
   ROOT_NAME: ${{ github.event.inputs.root_name || 'tq123devhabit' }}
+  LOCATION: ${{ github.event.inputs.location || 'westus2' }}
 
 jobs:
   deploy:
@@ -30,6 +35,9 @@ jobs:
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create resource group
+      run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
 
     - name: Deploy infrastructure
       id: infra_deploy
