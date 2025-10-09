@@ -63,6 +63,7 @@ jobs:
              rootName='${{ env.ROOT_NAME }}' \
              sqlUsername='${{ secrets.SQL_USERNAME }}' \
              sqlPassword='${{ secrets.SQL_PASSWORD }}'
+          --debug
 
 
     - name: Get deployment outputs
