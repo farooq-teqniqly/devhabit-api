@@ -60,7 +60,6 @@ jobs:
           --resource-group ${{ env.ROOT_NAME }}-rg \
           --template-file deployment/main.bicep \
           --parameters \
-         --parameters \
              rootName='${{ env.ROOT_NAME }}' \
              sqlUsername='${{ secrets.SQL_USERNAME }}' \
              sqlPassword='${{ secrets.SQL_PASSWORD }}'
