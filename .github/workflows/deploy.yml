@@ -60,9 +60,10 @@ jobs:
           --resource-group ${{ env.ROOT_NAME }}-rg \
           --template-file deployment/main.bicep \
           --parameters \
-            rootName=${{ env.ROOT_NAME }} \
-            sqlUsername=${{ secrets.SQL_USERNAME }} \
-            sqlPassword=${{ secrets.SQL_PASSWORD }}
+         --parameters \
+             rootName='${{ env.ROOT_NAME }}' \
+             sqlUsername='${{ secrets.SQL_USERNAME }}' \
+             sqlPassword='${{ secrets.SQL_PASSWORD }}'
 
 
     - name: Get deployment outputs
