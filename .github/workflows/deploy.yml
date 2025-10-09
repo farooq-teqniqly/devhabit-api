@@ -62,7 +62,7 @@ jobs:
           --parameters \
              rootName='${{ env.ROOT_NAME }}' \
              sqlUsername='${{ secrets.SQL_USERNAME }}' \
-             sqlPassword='${{ secrets.SQL_PASSWORD }}'
+             sqlPassword='${{ secrets.SQL_PASSWORD }}' \
           --debug
 
 
