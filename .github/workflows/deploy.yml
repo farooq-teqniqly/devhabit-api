@@ -54,6 +54,7 @@ jobs:
 
     - name: Deploy Infrastructure
       id: deploy
+      continue-on-error: true
       run: |
         az deployment group create \
           --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
@@ -62,11 +63,29 @@ jobs:
           --parameters \
              rootName='${{ env.ROOT_NAME }}' \
              sqlUsername='${{ secrets.SQL_USERNAME }}' \
-             sqlPassword='${{ secrets.SQL_PASSWORD }}' \
-          --debug
+             sqlPassword='${{ secrets.SQL_PASSWORD }}'
 
+    - name: Show deployment details on failure
+      if: steps.deploy.outcome == 'failure'
+      run: |
+        echo "Deployment failed. Getting deployment details..."
+        az deployment group show \
+          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
+          --resource-group ${{ env.ROOT_NAME }}-rg \
+          --output table
+        
+        echo "Getting deployment operation details..."
+        az deployment operation group list \
+          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
+          --resource-group ${{ env.ROOT_NAME }}-rg \
+          --output table
+
+    - name: Fail workflow if deployment failed
+      if: steps.deploy.outcome == 'failure'
+      run: exit 1
 
     - name: Get deployment outputs
+      if: steps.deploy.outcome == 'success'
       id: outputs
       run: |
         outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
