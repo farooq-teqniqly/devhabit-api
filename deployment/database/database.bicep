@@ -31,7 +31,6 @@ resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' = {
       sid: managedIdentityPrincipalId
       tenantId: subscription().tenantId
       login: '${rootName}-mi-admin'
-      principalType: 'ServicePrincipal'
     }
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
