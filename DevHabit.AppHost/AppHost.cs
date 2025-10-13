@@ -7,6 +7,13 @@ var sql = builder
 
 var db = sql.AddDatabase("devhabit-db", "devhabit");
 
-builder.AddProject<Projects.DevHabit_Api>("devhabit-api").WithReference(db).WaitFor(db);
+var appService = builder.AddAzureAppServiceEnvironment("appservice-env");
+
+builder
+  .AddProject<Projects.DevHabit_Api>("devhabit-api")
+  .WithReference(db)
+  .WaitFor(db)
+  .WithComputeEnvironment(appService)
+  .WithExternalHttpEndpoints();
 
 await builder.Build().RunAsync();
