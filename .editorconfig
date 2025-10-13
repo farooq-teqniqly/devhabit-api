@@ -70,16 +70,6 @@ dotnet_naming_symbols.non_field_members.required_modifiers =
 
 # Naming styles
 
-dotnet_naming_style.begins_with_i.required_prefix = I
-dotnet_naming_style.begins_with_i.required_suffix = 
-dotnet_naming_style.begins_with_i.word_separator = 
-dotnet_naming_style.begins_with_i.capitalization = pascal_case
-
-dotnet_naming_style.pascal_case.required_prefix = 
-dotnet_naming_style.pascal_case.required_suffix = 
-dotnet_naming_style.pascal_case.word_separator = 
-dotnet_naming_style.pascal_case.capitalization = pascal_case
-
 dotnet_naming_style.pascal_case.required_prefix = 
 dotnet_naming_style.pascal_case.required_suffix = 
 dotnet_naming_style.pascal_case.word_separator = 
@@ -110,3 +100,29 @@ dotnet_diagnostic.CA2007.severity = none
 [AppHost.cs]
 # CA2007: Do not directly await a Task without calling ConfigureAwait
 dotnet_diagnostic.CA2007.severity = none
+
+[DatabaseExtensions.cs]
+# CA1031: Do not catch general exception types
+dotnet_diagnostic.CA1031.severity = none
+
+[DevHabit.Api/Entities/*.cs]
+# CA1812: Avoid uninstantiated internal classes
+dotnet_diagnostic.CA1812.severity = none
+
+[DevHabit.Api/Migrations/**/*.cs]
+# CA1515: Consider making public types internal
+dotnet_diagnostic.CA1515.severity = none
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1062: Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none
+
+[DevHabit.Api/Database/Configurations/*.cs]
+# CA1812: Avoid uninstantiated internal classes
+dotnet_diagnostic.CA1812.severity = none
+
+[DevHabit.Api/Database/*.cs]
+# CA1812: Avoid uninstantiated internal classes
+dotnet_diagnostic.CA1812.severity = none
