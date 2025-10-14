@@ -78,19 +78,20 @@ Content-Type: application/json
 Accept: application/json
 
 {
-      "description": "Exercise for at least 45 minutes every day",
+      "description": "Exercise for at least 30 minutes every day",
       "endDate": null,
       "frequency": {
         "timesPerPeriod": 1,
         "type": "Daily"
       },
       "milestone": {
-        "target": 45
+        "current": 20,
+        "target": 30
       },
       "name": "Daily Exercise",
       "target": {
         "unit": "minutes",
-        "value": 45
+        "value": 20
       },
       "type": "Binary"
     }

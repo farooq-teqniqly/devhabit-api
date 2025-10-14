@@ -1,4 +1,3 @@
-using System.Data;
 using DevHabit.Api.Entities;
 
 namespace DevHabit.Api.Dtos
@@ -68,7 +67,7 @@ namespace DevHabit.Api.Dtos
       return habit;
     }
 
-    public static UpdateHabitDto UpdateFromDto(this Habit habit, UpdateHabitDto dto)
+    public static void UpdateFromDto(this Habit habit, UpdateHabitDto dto)
     {
       ArgumentNullException.ThrowIfNull(habit);
       ArgumentNullException.ThrowIfNull(dto);
@@ -88,12 +87,18 @@ namespace DevHabit.Api.Dtos
 
       if (dto.Milestone is not null)
       {
-        habit.Milestone = new Milestone { Target = dto.Milestone.Target };
+        habit.Milestone = new Milestone
+        {
+          Target = dto.Milestone.Target,
+          Current = dto.Milestone.Current,
+        };
+      }
+      else
+      {
+        habit.Milestone = null;
       }
 
       habit.UpdatedAtUtc = DateTimeOffset.UtcNow;
-
-      return dto;
     }
   }
 }

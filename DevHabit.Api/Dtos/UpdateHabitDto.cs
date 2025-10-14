@@ -1,5 +1,3 @@
-using DevHabit.Api.Dtos;
-
 namespace DevHabit.Api.Dtos
 {
   public sealed record UpdateHabitDto
