@@ -136,10 +136,15 @@ jobs:
           fi
           echo "Database connection string secret is configured"
 
+      - name: Install dotnet-ef CLI
+        run: |
+          dotnet tool install --global dotnet-ef
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
       - name: Create devhabit database migration bundle
         run: |
           cd DevHabit.Api
-          dotnet ef migrations bundle --context ApplicationDbContext --configuration Release --force --no-build --output ./app-bundle.exe 
+          dotnet ef migrations bundle --context ApplicationDbContext --configuration Release --force --output ./app-bundle.exe
           cd ..
 
       - name: Apply app migrations
