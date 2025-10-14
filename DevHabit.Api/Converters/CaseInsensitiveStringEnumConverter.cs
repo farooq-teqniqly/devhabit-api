@@ -14,8 +14,16 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
 
   public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
   {
+    ArgumentNullException.ThrowIfNull(typeToConvert);
+
     var converterType = typeof(CaseInsensitiveEnumConverter<>).MakeGenericType(typeToConvert);
-    return (JsonConverter)Activator.CreateInstance(converterType)!;
+
+    return (JsonConverter)(
+      Activator.CreateInstance(converterType)
+      ?? throw new InvalidOperationException(
+        $"Failed to create converter for type {typeToConvert.Name}"
+      )
+    );
   }
 
   private sealed class CaseInsensitiveEnumConverter<T> : JsonConverter<T>
