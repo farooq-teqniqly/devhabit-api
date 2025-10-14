@@ -72,3 +72,27 @@ GET {{DevHabit.Api_HostAddress}}/habits/h_1234
 DELETE {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
 
 ###
+
+PUT {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
+Content-Type: application/json
+Accept: application/json
+
+{
+      "description": "Exercise for at least 45 minutes every day",
+      "endDate": null,
+      "frequency": {
+        "timesPerPeriod": 1,
+        "type": "Daily"
+      },
+      "milestone": {
+        "target": 45
+      },
+      "name": "Daily Exercise",
+      "target": {
+        "unit": "minutes",
+        "value": 45
+      },
+      "type": "Binary"
+    }
+
+###

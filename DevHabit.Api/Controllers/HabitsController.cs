@@ -84,5 +84,24 @@ namespace DevHabit.Api.Controllers
 
       return Ok(habitCollection);
     }
+
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<ActionResult> UpdateHabit(string id, [FromBody] UpdateHabitDto updateHabitDto)
+    {
+      var habit = await _dbContext
+        .Habits.FindAsync(id, HttpContext.RequestAborted)
+        .ConfigureAwait(false);
+
+      if (habit is null)
+      {
+        return NotFound();
+      }
+
+      habit.UpdateFromDto(updateHabitDto);
+      await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+      return NoContent();
+    }
   }
 }
