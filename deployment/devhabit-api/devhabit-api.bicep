@@ -65,6 +65,7 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
         {
           name: 'ConnectionStrings__devhabit-db'
           value: devhabit_api_database_connection_string
+          slotSetting: true
         }
       ]
     }
