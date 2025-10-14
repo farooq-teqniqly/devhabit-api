@@ -7,7 +7,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddControllers();
+builder
+  .Services.AddControllers(opts =>
+  {
+    opts.ReturnHttpNotAcceptable = true;
+  })
+  .AddXmlSerializerFormatters();
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>

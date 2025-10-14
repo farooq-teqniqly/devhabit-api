@@ -85,13 +85,9 @@ dotnet_style_object_initializer = true:suggestion
 # CA1014: Mark assemblies with CLSCompliant
 dotnet_diagnostic.CA1014.severity = none
 
-[*Controller.cs]
 # CA1515: Consider making public types internal
 dotnet_diagnostic.CA1515.severity = none
 
-[WeatherForecast.cs]
-# CA1515: Consider making public types internal
-dotnet_diagnostic.CA1515.severity = none
 
 [Program.cs]
 # CA2007: Do not directly await a Task without calling ConfigureAwait
@@ -109,10 +105,6 @@ dotnet_diagnostic.CA1031.severity = none
 # CA1812: Avoid uninstantiated internal classes
 dotnet_diagnostic.CA1812.severity = none
 
-[DevHabit.Api/Migrations/**/*.cs]
-# CA1515: Consider making public types internal
-dotnet_diagnostic.CA1515.severity = none
-
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
 
@@ -126,3 +118,11 @@ dotnet_diagnostic.CA1812.severity = none
 [DevHabit.Api/Database/*.cs]
 # CA1812: Avoid uninstantiated internal classes
 dotnet_diagnostic.CA1812.severity = none
+
+[DevHabit.Api/Migrations/Application/*.cs]
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1062: Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none

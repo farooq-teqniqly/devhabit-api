@@ -6,8 +6,8 @@ namespace DevHabit.Api.Entities
     public string? Description { get; set; }
     public DateOnly? EndDate { get; set; }
     public required Frequency Frequency { get; set; }
-    public required HabitStatus HabitStatus { get; set; }
-    public required HabitType HabitType { get; set; }
+    public required HabitStatus Status { get; set; }
+    public required HabitType Type { get; set; }
     public required string Id { get; set; }
     public required bool IsArchived { get; set; }
     public DateTime? LastCompletedAtUtc { get; set; }

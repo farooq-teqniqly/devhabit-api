@@ -43,14 +43,6 @@ namespace DevHabit.Api.Migrations.Application
                         .HasColumnType("date")
                         .HasColumnName("end_date");
 
-                    b.Property<int>("HabitStatus")
-                        .HasColumnType("int")
-                        .HasColumnName("habit_status");
-
-                    b.Property<int>("HabitType")
-                        .HasColumnType("int")
-                        .HasColumnName("habit_type");
-
                     b.Property<bool>("IsArchived")
                         .HasColumnType("bit")
                         .HasColumnName("is_archived");
@@ -64,6 +56,14 @@ namespace DevHabit.Api.Migrations.Application
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int")
+                        .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("datetime2")

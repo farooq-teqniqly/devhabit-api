@@ -2,7 +2,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var sql = builder
   .AddSqlServer("sql")
-  .WithLifetime(ContainerLifetime.Persistent)
+  .WithLifetime(ContainerLifetime.Session)
   .WithImage("mssql/server:2022-CU21-ubuntu-22.04");
 
 var db = sql.AddDatabase("devhabit-db", "devhabit");

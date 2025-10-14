@@ -12,6 +12,8 @@ namespace DevHabit.Api.Database
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      ArgumentNullException.ThrowIfNull(modelBuilder);
+
       modelBuilder.HasDefaultSchema(Schemas.Application);
       modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
