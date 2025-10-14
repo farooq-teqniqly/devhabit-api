@@ -25,7 +25,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
 {
   var connectionString =
-    builder.Configuration.GetConnectionString("devhabit-db")
+    builder.Configuration.GetConnectionString("devhabitdb")
     ?? throw new InvalidOperationException("Database connection string was not specified.");
 
   opts.UseSqlServer(
