@@ -41,6 +41,13 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
       linuxFxVersion: 'SITECONTAINERS'
       acrUseManagedIdentityCreds: true
       acrUserManagedIdentityID: appservice_env_outputs_azure_container_registry_managed_identity_client_id
+      connectionStrings: [
+        {
+          name: 'devhabit-db'
+          connectionString: devhabit_api_database_connection_string
+          type: 'SQLAzure'
+        }
+      ]
       appSettings: [
         {
           name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES'
@@ -61,11 +68,6 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
         {
           name: 'HTTP_PORTS'
           value: devhabit_api_containerport
-        }
-        {
-          name: 'ConnectionStrings__devhabit-db'
-          value: devhabit_api_database_connection_string
-          slotSetting: true
         }
       ]
     }
