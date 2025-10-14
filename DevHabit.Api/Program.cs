@@ -23,8 +23,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
         sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Application);
       }
     )
-    .UseSnakeCaseNamingConvention()
-    .EnableSensitiveDataLogging();
+    .UseSnakeCaseNamingConvention();
+
+  if (builder.Environment.IsDevelopment())
+  {
+    opts.EnableSensitiveDataLogging();
+  }
 });
 
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>

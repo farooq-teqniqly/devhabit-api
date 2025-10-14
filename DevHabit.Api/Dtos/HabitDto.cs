@@ -19,8 +19,8 @@ public sealed record HabitDto
   public DateTime? LastCompletedAtUtc { get; init; }
   public MilestoneDto? Milestone { get; init; }
   public required string Name { get; init; }
-  public required HabitStatus Status { get; init; }
+  public required HabitStatusDto Status { get; init; }
   public required TargetDto Target { get; init; }
-  public required HabitType Type { get; init; }
+  public required HabitTypeDto Type { get; init; }
   public DateTime? UpdatedAtUtc { get; init; }
 }

@@ -28,14 +28,14 @@ namespace DevHabit.Api.Controllers
           Id = h.Id,
           Name = h.Name,
           Description = h.Description,
-          Type = h.Type,
+          Type = (HabitTypeDto)h.Type,
           Frequency = new FrequencyDto
           {
-            Type = h.Frequency.Type,
+            Type = (FrequencyTypeDto)h.Frequency.Type,
             TimesPerPeriod = h.Frequency.TimesPerPeriod,
           },
           Target = new TargetDto { Value = h.Target.Value, Unit = h.Target.Unit },
-          Status = h.Status,
+          Status = (HabitStatusDto)h.Status,
           IsArchived = h.IsArchived,
           EndDate = h.EndDate,
           Milestone =
