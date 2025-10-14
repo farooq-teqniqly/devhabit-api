@@ -45,7 +45,8 @@ namespace DevHabit.Api.Controllers
         return NotFound();
       }
 
-      _dbContext.Habits.Remove(habit);
+      habit.IsArchived = true;
+      habit.UpdatedAtUtc = DateTimeOffset.UtcNow;
       await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
       return NoContent();
@@ -73,7 +74,7 @@ namespace DevHabit.Api.Controllers
     public async Task<ActionResult<HabitsCollectionDto>> GetHabits()
     {
       var habitDtos = await _dbContext
-        .Habits.Select(h => h.ToDto())
+        .Habits.Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
 

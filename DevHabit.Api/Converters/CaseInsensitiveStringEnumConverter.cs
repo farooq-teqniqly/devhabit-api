@@ -40,6 +40,7 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
         case JsonTokenType.String:
         {
           var stringValue = reader.GetString();
+
           if (
             stringValue != null
             && Enum.TryParse<T>(stringValue, ignoreCase: true, out var result)
@@ -47,6 +48,7 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
           {
             return result;
           }
+
           throw new JsonException(
             $"Unable to convert \"{stringValue}\" to enum type {typeof(T).Name}"
           );
@@ -54,10 +56,12 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
         case JsonTokenType.Number:
         {
           var intValue = reader.GetInt32();
+
           if (Enum.IsDefined(typeof(T), intValue))
           {
             return (T)Enum.ToObject(typeof(T), intValue);
           }
+
           throw new JsonException($"Unable to convert {intValue} to enum type {typeof(T).Name}");
         }
         default:
