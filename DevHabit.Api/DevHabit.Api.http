@@ -15,22 +15,8 @@ Accept: application/json
 
 ###
 
-GET {{DevHabit.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
 
 GET {{DevHabit.Api_HostAddress}}/habits/
 Accept: application/json
-
-###
-
-GET {{DevHabit.Api_HostAddress}}/habits/
-Accept: application/xml
-
-###
-
-GET {{DevHabit.Api_HostAddress}}/habits/
-Accept: application/text
 
 ###
