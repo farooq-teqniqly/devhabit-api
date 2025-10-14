@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevHabit.Api.Migrations.Application
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251014025424_Add_Habits")]
+    [Migration("20251014062613_Add_Habits")]
     partial class Add_Habits
     {
         /// <inheritdoc />
@@ -33,8 +33,8 @@ namespace DevHabit.Api.Migrations.Application
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2")
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset")
                         .HasColumnName("created_at_utc");
 
                     b.Property<string>("Description")
@@ -50,8 +50,8 @@ namespace DevHabit.Api.Migrations.Application
                         .HasColumnType("bit")
                         .HasColumnName("is_archived");
 
-                    b.Property<DateTime?>("LastCompletedAtUtc")
-                        .HasColumnType("datetime2")
+                    b.Property<DateTimeOffset?>("LastCompletedAtUtc")
+                        .HasColumnType("datetimeoffset")
                         .HasColumnName("last_completed_at_utc");
 
                     b.Property<string>("Name")
@@ -68,8 +68,8 @@ namespace DevHabit.Api.Migrations.Application
                         .HasColumnType("int")
                         .HasColumnName("type");
 
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2")
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset")
                         .HasColumnName("updated_at_utc");
 
                     b.HasKey("Id")
