@@ -14,6 +14,7 @@ builder
   {
     opts.ReturnHttpNotAcceptable = true;
   })
+  .AddNewtonsoftJson()
   .AddJsonOptions(opts =>
   {
     opts.JsonSerializerOptions.Converters.Add(new CaseInsensitiveStringEnumConverter());
