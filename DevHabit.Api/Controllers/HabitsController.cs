@@ -56,17 +56,16 @@ namespace DevHabit.Api.Controllers
     [Route("{id}")]
     public async Task<ActionResult<HabitDto>> GetHabit(string id)
     {
-      var habit = await _dbContext
-        .Habits.FindAsync(id, HttpContext.RequestAborted)
+      var habitDto = await _dbContext
+        .Habits.Where(h => h.Id == id)
+        .Select(HabitQueries.ProjectToDto())
+        .SingleOrDefaultAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
 
-      if (habit is null)
+      if (habitDto is null)
       {
         return NotFound();
       }
-
-      var habitDto = habit.ToDto();
-
       return Ok(habitDto);
     }
 
