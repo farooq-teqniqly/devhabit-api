@@ -1,6 +1,6 @@
 namespace DevHabit.Api.Entities
 {
-  internal sealed class Habit
+  public sealed class Habit
   {
     public required DateTime CreatedAtUtc { get; set; }
     public string? Description { get; set; }

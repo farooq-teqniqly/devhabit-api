@@ -1,6 +1,6 @@
 namespace DevHabit.Api.Entities
 {
-  internal enum HabitType
+  public enum HabitType
   {
     None = 0,
     Binary = 1,

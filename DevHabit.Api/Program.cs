@@ -19,7 +19,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
         sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Application);
       }
     )
-    .UseSnakeCaseNamingConvention();
+    .UseSnakeCaseNamingConvention()
+    .EnableSensitiveDataLogging();
+});
+
+builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
+{
+  settings.DisableTracing = false;
+  settings.DisableHealthChecks = false;
+  settings.DisableRetry = false;
 });
 
 var app = builder.Build();
