@@ -7,7 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddControllers();
+builder.Services.AddControllers(opts =>
+{
+  opts.ReturnHttpNotAcceptable = true;
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
@@ -20,6 +24,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
       }
     )
     .UseSnakeCaseNamingConvention();
+
+  if (builder.Environment.IsDevelopment())
+  {
+    opts.EnableSensitiveDataLogging();
+  }
+});
+
+builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
+{
+  settings.DisableTracing = false;
+  settings.DisableHealthChecks = false;
+  settings.DisableRetry = false;
 });
 
 var app = builder.Build();

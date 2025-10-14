@@ -1,6 +1,6 @@
-namespace DevHabit.Api.Entities
+namespace DevHabit.Api.Dtos
 {
-  public enum FrequencyType
+  public enum FrequencyTypeDto
   {
     None = 0,
     Daily = 1,

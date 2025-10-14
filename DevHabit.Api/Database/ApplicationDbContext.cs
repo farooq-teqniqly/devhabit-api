@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DevHabit.Api.Database
 {
-  internal sealed class ApplicationDbContext : DbContext
+  public sealed class ApplicationDbContext : DbContext
   {
     public DbSet<Habit> Habits => Set<Habit>();
 
@@ -12,6 +12,8 @@ namespace DevHabit.Api.Database
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      ArgumentNullException.ThrowIfNull(modelBuilder);
+
       modelBuilder.HasDefaultSchema(Schemas.Application);
       modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }

@@ -64,7 +64,7 @@ After ensuring you have the latest EF tools, you can run migrations:
 
 ```bash
 # Add a new migration
-dotnet ef migrations add MigrationName --project DevHabit.Api
+dotnet ef migrations add MigrationName --project DevHabit.Api --output-dir Migrations\Application
 
 # Update the database
 dotnet ef database update --project DevHabit.Api

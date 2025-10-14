@@ -1,6 +1,6 @@
-namespace DevHabit.Api.Entities
+namespace DevHabit.Api.Dtos
 {
-  public enum HabitType
+  public enum HabitTypeDto
   {
     None = 0,
     Binary = 1,

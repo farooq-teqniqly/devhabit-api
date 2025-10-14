@@ -1,6 +1,6 @@
-namespace DevHabit.Api.Entities
+namespace DevHabit.Api.Dtos
 {
-  public enum HabitStatus
+  public enum HabitStatusDto
   {
     None = 0,
     Ongoing = 1,
