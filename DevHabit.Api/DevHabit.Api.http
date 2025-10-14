@@ -17,7 +17,7 @@ GET {{DevHabit.Api_HostAddress}}/habits
 
 ###
 
-GET {{DevHabit.Api_HostAddress}}/habits/h_0199e169-6a28-77d1-8aed-06a64feb1307
+GET {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
 
 ###
 
@@ -28,10 +28,10 @@ Accept: application/json
 {
   "name": "Daily Exercise",
   "description": "Exercise for at least 30 minutes every day",
-  "type": 1,
+  "type": "Binary",
   "frequency": {
     "timesPerPeriod": 1,
-    "type": 1
+    "type": "Daily"
   },
   "target": {
     "unit": "minutes",
@@ -69,6 +69,6 @@ GET {{DevHabit.Api_HostAddress}}/habits/h_1234
 
 ###
 
-DELETE {{DevHabit.Api_HostAddress}}/habits/h_0199e17a-39cb-7beb-b493-a40184fd3de2
+DELETE {{DevHabit.Api_HostAddress}}/habits/h_0199e169-6a28-77d1-8aed-06a64feb1307
 
 ###

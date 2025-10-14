@@ -1,3 +1,4 @@
+using DevHabit.Api.Converters;
 using DevHabit.Api.Database;
 using DevHabit.Api.Extensions;
 using DevHabit.ServiceDefaults;
@@ -7,10 +8,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddControllers(opts =>
-{
-  opts.ReturnHttpNotAcceptable = true;
-});
+
+builder
+  .Services.AddControllers(opts =>
+  {
+    opts.ReturnHttpNotAcceptable = true;
+  })
+  .AddJsonOptions(opts =>
+  {
+    opts.JsonSerializerOptions.Converters.Add(new CaseInsensitiveStringEnumConverter());
+  });
 
 builder.Services.AddOpenApi();
 
