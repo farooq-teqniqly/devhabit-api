@@ -66,5 +66,39 @@ namespace DevHabit.Api.Dtos
 
       return habit;
     }
+
+    public static void UpdateFromDto(this Habit habit, UpdateHabitDto dto)
+    {
+      ArgumentNullException.ThrowIfNull(habit);
+      ArgumentNullException.ThrowIfNull(dto);
+
+      habit.Name = dto.Name;
+      habit.Description = dto.Description;
+      habit.Type = (HabitType)dto.Type;
+      habit.EndDate = dto.EndDate;
+
+      habit.Frequency = new Frequency
+      {
+        Type = (FrequencyType)dto.Frequency.Type,
+        TimesPerPeriod = dto.Frequency.TimesPerPeriod,
+      };
+
+      habit.Target = new Target { Value = dto.Target.Value, Unit = dto.Target.Unit };
+
+      if (dto.Milestone is not null)
+      {
+        habit.Milestone = new Milestone
+        {
+          Target = dto.Milestone.Target,
+          Current = dto.Milestone.Current,
+        };
+      }
+      else
+      {
+        habit.Milestone = null;
+      }
+
+      habit.UpdatedAtUtc = DateTimeOffset.UtcNow;
+    }
   }
 }
