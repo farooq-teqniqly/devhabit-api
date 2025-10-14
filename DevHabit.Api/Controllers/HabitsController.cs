@@ -46,7 +46,7 @@ namespace DevHabit.Api.Controllers
           UpdatedAtUtc = h.UpdatedAtUtc,
           LastCompletedAtUtc = h.LastCompletedAtUtc,
         })
-        .ToListAsync()
+        .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
 
       var habitCollection = new HabitsCollectionDto
