@@ -23,8 +23,12 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
 {
+  var connectionString =
+    builder.Configuration.GetConnectionString("devhabit-db")
+    ?? throw new InvalidOperationException("Database connection string was not specified.");
+
   opts.UseSqlServer(
-      builder.Configuration.GetConnectionString("devhabit-db"),
+      connectionString,
       sqlOpts =>
       {
         sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Application);
