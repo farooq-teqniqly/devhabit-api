@@ -9,14 +9,19 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
   {
     ArgumentNullException.ThrowIfNull(typeToConvert);
 
-    return typeToConvert.IsEnum;
+    var t = Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert;
+    return t.IsEnum;
   }
 
   public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
   {
     ArgumentNullException.ThrowIfNull(typeToConvert);
 
-    var converterType = typeof(CaseInsensitiveEnumConverter<>).MakeGenericType(typeToConvert);
+    var underlying = Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert;
+    var isNullable = Nullable.GetUnderlyingType(typeToConvert) is not null;
+    var converterType = isNullable
+      ? typeof(NullableCaseInsensitiveEnumConverter<>).MakeGenericType(underlying)
+      : typeof(CaseInsensitiveEnumConverter<>).MakeGenericType(underlying);
 
     return (JsonConverter)(
       Activator.CreateInstance(converterType)
@@ -24,6 +29,29 @@ public class CaseInsensitiveStringEnumConverter : JsonConverterFactory
         $"Failed to create converter for type {typeToConvert.Name}"
       )
     );
+  }
+
+  private sealed class NullableCaseInsensitiveEnumConverter<T> : JsonConverter<T?>
+    where T : struct, Enum
+  {
+    public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+      if (reader.TokenType == JsonTokenType.Null)
+        return null;
+      // Delegate to non-nullable converter
+      var inner = new CaseInsensitiveEnumConverter<T>();
+      return inner.Read(ref reader, typeof(T), options);
+    }
+
+    public override void Write(Utf8JsonWriter writer, T? value, JsonSerializerOptions options)
+    {
+      if (value is null)
+      {
+        writer.WriteNullValue();
+        return;
+      }
+      writer.WriteStringValue(value.Value.ToString());
+    }
   }
 
   private sealed class CaseInsensitiveEnumConverter<T> : JsonConverter<T>
