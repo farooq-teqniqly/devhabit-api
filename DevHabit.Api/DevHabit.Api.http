@@ -105,13 +105,8 @@ Accept: application/json
 [
   {
     "op": "replace",
-    "path": "/name",
-    "value": "Daily Exercise 60 minutes per day"
-  },
-  {
-    "op": "replace",
-    "path": "/description",
-    "value": "Exercise for at least 60 minutes every day"
+    "path": "/isarchived",
+    "value": false
   }
     
 ]

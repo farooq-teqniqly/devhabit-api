@@ -55,10 +55,14 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult<HabitDto>> GetHabit(string id)
+    public async Task<ActionResult<HabitDto>> GetHabit(
+      string id,
+      [FromQuery] bool includeArchived = false
+    )
     {
       var habitDto = await _dbContext
         .Habits.Where(h => h.Id == id)
+        .Where(h => !h.IsArchived || includeArchived)
         .Select(HabitQueries.ProjectToDto())
         .SingleOrDefaultAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
@@ -71,10 +75,13 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<HabitsCollectionDto>> GetHabits()
+    public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
+      [FromQuery] bool includeArchived = false
+    )
     {
       var habitDtos = await _dbContext
-        .Habits.Select(HabitQueries.ProjectToDto())
+        .Habits.Where(h => !h.IsArchived || includeArchived)
+        .Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
 
@@ -93,7 +100,7 @@ namespace DevHabit.Api.Controllers
       [FromBody] JsonPatchDocument<HabitDto> patchDocument
     )
     {
-      var allowedPaths = new[] { "/name", "/description" };
+      var allowedPaths = new[] { "/name", "/description", "/isarchived" };
 
       var invalidOperations = patchDocument
         .Operations.Where(op =>
@@ -126,6 +133,7 @@ namespace DevHabit.Api.Controllers
 
       habit.Name = habitDto.Name;
       habit.Description = habitDto.Description;
+      habit.IsArchived = habitDto.IsArchived;
       habit.UpdatedAtUtc = DateTimeOffset.UtcNow;
 
       await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
