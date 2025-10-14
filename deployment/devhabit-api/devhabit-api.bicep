@@ -21,6 +21,10 @@ param devhabit_api_containerimage string
 @description('The container port number as a string (for environment variable HTTP_PORTS)')
 param devhabit_api_containerport string = '8080'
 
+@description('The database connection string for the application to connect to the database')
+@secure()
+param  devhabit_api_database_connection_string string
+
 param tags object = { 
   environment: 'production'
   project: 'devhabit'
@@ -57,6 +61,10 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
         {
           name: 'HTTP_PORTS'
           value: devhabit_api_containerport
+        }
+        {
+          name: 'ConnectionStrings__devhabit-db'
+          value: devhabit_api_database_connection_string
         }
       ]
     }
