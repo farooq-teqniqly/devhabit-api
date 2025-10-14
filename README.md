@@ -26,6 +26,50 @@ This is a .NET Aspire-based application for the DevHabit platform.
 
 This will start the Aspire dashboard and all services locally using Docker Compose.
 
+## Database Migrations
+
+This project uses Entity Framework Core for database operations. You may need to update the EF Core tools to work with the latest migrations.
+
+### Updating .NET EF Core Tool
+
+The .NET Entity Framework Core tools are required for database migrations. To ensure you have the latest version:
+
+1. **Check current version**:
+
+   ```bash
+   dotnet ef --version
+   ```
+
+2. **Update to the latest version**:
+
+   ```bash
+   dotnet tool update --global dotnet-ef
+   ```
+
+3. **Install if not already installed**:
+
+   ```bash
+   dotnet tool install --global dotnet-ef
+   ```
+
+4. **Verify installation**:
+
+   ```bash
+   dotnet ef --version
+   ```
+
+### Running Migrations
+
+After ensuring you have the latest EF tools, you can run migrations:
+
+```bash
+# Add a new migration
+dotnet ef migrations add MigrationName --project DevHabit.Api
+
+# Update the database
+dotnet ef database update --project DevHabit.Api
+```
+
 ## Deployment to Azure
 
 The project includes automated deployment via GitHub Actions using Azure Bicep templates and Azure CLI.
@@ -95,7 +139,7 @@ If you prefer manual deployment using the .NET Aspire CLI:
 1. Install .NET Aspire:
 
    ```bash
-   dotnet tool install aspire --global
+   dotnet tool install --global Aspire.Cli --prerelease
    ```
 
 2. Authenticate with Azure:
