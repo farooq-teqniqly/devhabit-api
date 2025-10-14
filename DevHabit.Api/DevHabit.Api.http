@@ -97,3 +97,23 @@ Accept: application/json
     }
 
 ###
+
+PATCH {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "op": "replace",
+    "path": "/name",
+    "value": "Daily Exercise 60 minutes per day"
+  },
+  {
+    "op": "replace",
+    "path": "/description",
+    "value": "Exercise for at least 60 minutes every day"
+  }
+    
+]
+
+###

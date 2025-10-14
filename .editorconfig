@@ -88,6 +88,9 @@ dotnet_diagnostic.CA1014.severity = none
 # CA1515: Consider making public types internal
 dotnet_diagnostic.CA1515.severity = none
 
+# CA1860: Avoid using 'Enumerable.Any()' extension method
+dotnet_diagnostic.CA1860.severity = suggestion
+
 
 [Program.cs]
 # CA2007: Do not directly await a Task without calling ConfigureAwait

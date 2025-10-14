@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,6 +84,53 @@ namespace DevHabit.Api.Controllers
       };
 
       return Ok(habitCollection);
+    }
+
+    [HttpPatch]
+    [Route("{id}")]
+    public async Task<ActionResult> PatchHabit(
+      string id,
+      [FromBody] JsonPatchDocument<HabitDto> patchDocument
+    )
+    {
+      var allowedPaths = new[] { "/name", "/description" };
+
+      var invalidOperations = patchDocument
+        .Operations.Where(op =>
+          !allowedPaths.Contains(op.path, StringComparer.InvariantCultureIgnoreCase)
+        )
+        .ToList();
+
+      if (invalidOperations.Any())
+      {
+        return ValidationProblem($"Only {string.Join(", ", allowedPaths)} can be patched.");
+      }
+
+      var habit = await _dbContext
+        .Habits.FindAsync(id, HttpContext.RequestAborted)
+        .ConfigureAwait(false);
+
+      if (habit is null)
+      {
+        return NotFound();
+      }
+
+      var habitDto = habit.ToDto();
+
+      patchDocument.ApplyTo(habitDto, ModelState);
+
+      if (!TryValidateModel(habitDto))
+      {
+        return ValidationProblem(ModelState);
+      }
+
+      habit.Name = habitDto.Name;
+      habit.Description = habitDto.Description;
+      habit.UpdatedAtUtc = DateTimeOffset.UtcNow;
+
+      await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+      return NoContent();
     }
 
     [HttpPut]
