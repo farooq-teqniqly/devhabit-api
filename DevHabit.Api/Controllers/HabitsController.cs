@@ -93,6 +93,19 @@ namespace DevHabit.Api.Controllers
       [FromBody] JsonPatchDocument<HabitDto> patchDocument
     )
     {
+      var allowedPaths = new[] { "/name", "/description" };
+
+      var invalidOperations = patchDocument
+        .Operations.Where(op =>
+          !allowedPaths.Contains(op.path, StringComparer.InvariantCultureIgnoreCase)
+        )
+        .ToList();
+
+      if (invalidOperations.Any())
+      {
+        return ValidationProblem($"Only {string.Join(", ", allowedPaths)} can be patched.");
+      }
+
       var habit = await _dbContext
         .Habits.FindAsync(id, HttpContext.RequestAborted)
         .ConfigureAwait(false);
@@ -104,7 +117,7 @@ namespace DevHabit.Api.Controllers
 
       var habitDto = habit.ToDto();
 
-     patchDocument.ApplyTo(habitDto, ModelState);
+      patchDocument.ApplyTo(habitDto, ModelState);
 
       if (!TryValidateModel(habitDto))
       {
