@@ -3,121 +3,151 @@ name: Deploy to Azure
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/deploy.yml'
-      - 'deployment/**/*.bicep'
+    # paths:
+    #   - '.github/workflows/deploy.yml'
+    #   - 'deployment/**/*.bicep'
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       root_name:
-        description: 'Root name for resources (e.g., tq123devhabit)'
+        description: "Root name for resources (e.g., tq123devhabit)"
         required: true
-        default: 'tq123devhabit'
+        default: "tq123devhabit"
       location:
-        description: 'Azure region for resources (e.g., westus2)'
+        description: "Azure region for resources (e.g., westus2)"
         required: true
-        default: 'westus2'
+        default: "westus2"
 
 env:
   ROOT_NAME: ${{ github.event.inputs.root_name || 'tq123devhabit' }}
   LOCATION: ${{ github.event.inputs.location || 'westus2' }}
-
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Validate required secrets
+        run: |
+          missing_secrets=()
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+          if [ -z "${{ secrets.AZURE_CREDENTIALS }}" ]; then
+            missing_secrets+=("AZURE_CREDENTIALS")
+          fi
 
-    - name: Login to Azure
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+          if [ -z "${{ secrets.SQL_USERNAME }}" ]; then
+            missing_secrets+=("SQL_USERNAME")
+          fi
 
-    - name: Get commit hash
-      id: commit
-      run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          if [ -z "${{ secrets.SQL_PASSWORD }}" ]; then
+            missing_secrets+=("SQL_PASSWORD")
+          fi
 
-    - name: Create resource group
-      run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
+          if [ ${#missing_secrets[@]} -ne 0 ]; then
+            echo "Missing required secrets: ${missing_secrets[*]}"
+            echo "Please configure these secrets in your repository settings."
+            exit 1
+          fi
 
-    - name: Upgrade Bicep CLI
-      run: az bicep upgrade
+          echo "All required secrets are configured"
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Deploy Infrastructure
-      id: deploy
-      continue-on-error: true
-      run: |
-        az deployment group create \
-          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
-          --resource-group ${{ env.ROOT_NAME }}-rg \
-          --template-file deployment/main.bicep \
-          --parameters \
-             rootName='${{ env.ROOT_NAME }}' \
-             sqlUsername='${{ secrets.SQL_USERNAME }}' \
-             sqlPassword='${{ secrets.SQL_PASSWORD }}'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
 
-    - name: Show deployment details on failure
-      if: steps.deploy.outcome == 'failure'
-      run: |
-        echo "Deployment failed. Getting deployment details..."
-        az deployment group show \
-          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
-          --resource-group ${{ env.ROOT_NAME }}-rg \
-          --output table
-        
-        echo "Getting deployment operation details..."
-        az deployment operation group list \
-          --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
-          --resource-group ${{ env.ROOT_NAME }}-rg \
-          --output table
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Fail workflow if deployment failed
-      if: steps.deploy.outcome == 'failure'
-      run: exit 1
+      - name: Get commit hash
+        id: commit
+        run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-    - name: Get deployment outputs
-      if: steps.deploy.outcome == 'success'
-      id: outputs
-      run: |
-        outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
-        echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
-        echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
-        echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
-        echo "mi_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID.value')" >> $GITHUB_OUTPUT
-        echo "mi_client_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID.value')" >> $GITHUB_OUTPUT
+      - name: Create resource group
+        run: az group create --name ${{ env.ROOT_NAME }}-rg --location ${{ env.LOCATION }}
 
-    - name: Build Docker image
-      run: |
-        cd DevHabit.Api
-        dotnet publish --configuration Release /t:PublishContainer /p:ContainerRepository="${{ env.ROOT_NAME }}-api" /p:ContainerRuntimeIdentifier="linux-x64"
-        cd ..
+      - name: Upgrade Bicep CLI
+        run: az bicep upgrade
 
-    - name: Login to ACR
-      run: az acr login --name ${{ steps.outputs.outputs.acr_name }}
+      - name: Deploy Infrastructure
+        id: deploy
+        continue-on-error: true
+        run: |
+          az deployment group create \
+            --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
+            --resource-group ${{ env.ROOT_NAME }}-rg \
+            --template-file deployment/main.bicep \
+            --parameters \
+               rootName='${{ env.ROOT_NAME }}' \
+               sqlUsername='${{ secrets.SQL_USERNAME }}' \
+               sqlPassword='${{ secrets.SQL_PASSWORD }}'
 
-    - name: Tag and push image
-      run: |
-        docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
-        docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
-    
-    - name: Deploy webapp
-      run: |
-        az deployment group create \
-          --name "${{ env.ROOT_NAME }}-deploy-webapp-${{ steps.commit.outputs.hash }}" \
-          --resource-group ${{ env.ROOT_NAME }}-rg \
-          --template-file deployment/devhabit-api/devhabit-api.bicep \
-          --parameters \
-            rootName=${{ env.ROOT_NAME }} \
-            appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
-            appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
-            appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
-            devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest'
+      - name: Show deployment details on failure
+        if: steps.deploy.outcome == 'failure'
+        run: |
+          echo "Deployment failed. Getting deployment details..."
+          az deployment group show \
+            --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
+            --resource-group ${{ env.ROOT_NAME }}-rg \
+            --output table
+
+          echo "Getting deployment operation details..."
+          az deployment operation group list \
+            --name "${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }}" \
+            --resource-group ${{ env.ROOT_NAME }}-rg \
+            --output table
+
+      - name: Fail workflow if deployment failed
+        if: steps.deploy.outcome == 'failure'
+        run: exit 1
+
+      - name: Get deployment outputs
+        if: steps.deploy.outcome == 'success'
+        id: outputs
+        run: |
+          outputs=$(az deployment group show --name ${{ env.ROOT_NAME }}-deploy-infra-${{ steps.commit.outputs.hash }} --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
+          echo "acr_name=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_NAME.value')" >> $GITHUB_OUTPUT
+          echo "acr_endpoint=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_ENDPOINT.value')" >> $GITHUB_OUTPUT
+          echo "plan_id=$(echo $outputs | jq -r '.appservice_env_planId.value')" >> $GITHUB_OUTPUT
+          echo "mi_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID.value')" >> $GITHUB_OUTPUT
+          echo "mi_client_id=$(echo $outputs | jq -r '.appservice_env_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_CLIENT_ID.value')" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          cd DevHabit.Api
+          dotnet publish --configuration Release /t:PublishContainer /p:ContainerRepository="${{ env.ROOT_NAME }}-api" /p:ContainerRuntimeIdentifier="linux-x64"
+          cd ..
+
+      - name: Login to ACR
+        run: az acr login --name ${{ steps.outputs.outputs.acr_name }}
+
+      - name: Tag and push image
+        run: |
+          docker tag ${{ env.ROOT_NAME }}-api:latest ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+          docker push ${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest
+
+      - name: Validate database connection string secret
+        run: |
+          if [ -z "${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}" ]; then
+            echo "DEVHABIT_DB_CONNECTION_STRING secret is not configured."
+            echo "Please configure this secret in your repository settings."
+            exit 1
+          fi
+          echo "Database connection string secret is configured"
+      - name: Deploy webapp
+        run: |
+          az deployment group create \
+            --name "${{ env.ROOT_NAME }}-deploy-webapp-${{ steps.commit.outputs.hash }}" \
+            --resource-group ${{ env.ROOT_NAME }}-rg \
+            --template-file deployment/devhabit-api/devhabit-api.bicep \
+            --parameters \
+              rootName=${{ env.ROOT_NAME }} \
+              appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
+              appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
+              appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
+              devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest'
