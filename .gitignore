@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 *.env
+# EF Core migrations bundle artifacts (platforms/paths)
+**/app-bundle*
+**/efbundle*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

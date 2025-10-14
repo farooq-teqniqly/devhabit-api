@@ -21,6 +21,10 @@ param devhabit_api_containerimage string
 @description('The container port number as a string (for environment variable HTTP_PORTS)')
 param devhabit_api_containerport string = '8080'
 
+@description('The database connection string for the application to connect to the database')
+@secure()
+param  devhabit_api_database_connection_string string
+
 param tags object = { 
   environment: 'production'
   project: 'devhabit'
@@ -37,6 +41,13 @@ resource webapp 'Microsoft.Web/sites@2024-11-01' = {
       linuxFxVersion: 'SITECONTAINERS'
       acrUseManagedIdentityCreds: true
       acrUserManagedIdentityID: appservice_env_outputs_azure_container_registry_managed_identity_client_id
+      connectionStrings: [
+        {
+          name: 'devhabit-db'
+          connectionString: devhabit_api_database_connection_string
+          type: 'SQLAzure'
+        }
+      ]
       appSettings: [
         {
           name: 'OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES'

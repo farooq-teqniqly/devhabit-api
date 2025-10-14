@@ -135,6 +135,23 @@ jobs:
             exit 1
           fi
           echo "Database connection string secret is configured"
+
+      - name: Install dotnet-ef CLI
+        run: |
+          dotnet tool install --global dotnet-ef
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Create devhabit database migration bundle
+        run: |
+          cd DevHabit.Api
+          dotnet ef migrations bundle --context ApplicationDbContext --configuration Release --force --output ./app-bundle.exe
+          cd ..
+
+      - name: Apply app migrations
+        run: |
+          cd DevHabit.Api
+          ./app-bundle.exe --connection "${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}"
+          cd ..
       - name: Deploy webapp
         run: |
           az deployment group create \
@@ -146,4 +163,5 @@ jobs:
               appservice_env_outputs_planid='${{ steps.outputs.outputs.plan_id }}' \
               appservice_env_outputs_azure_container_registry_managed_identity_id='${{ steps.outputs.outputs.mi_id }}' \
               appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
-              devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest'
+              devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
+              devhabit_api_database_connection_string='${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}'
