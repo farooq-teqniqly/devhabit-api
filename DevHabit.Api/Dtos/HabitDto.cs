@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using DevHabit.Api.Entities;
 
 namespace DevHabit.Api.Dtos;
 

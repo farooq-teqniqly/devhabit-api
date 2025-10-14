@@ -1,5 +1,3 @@
-using DevHabit.Api.Entities;
-
 namespace DevHabit.Api.Dtos;
 
 public sealed record FrequencyDto
