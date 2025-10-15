@@ -13,7 +13,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "Test Tag",
+  "name": "Test Tag5",
   "description": "This is a test tag"
 }
 
@@ -30,6 +30,6 @@ Accept: application/json
 
 ###
 
-DELETE {{DevHabit.Api_HostAddress}}/tags/t_0199e540-5a29-7da7-9d83-efc8c1eced01
+DELETE {{DevHabit.Api_HostAddress}}/tags/t_0199e8ce-f55c-7af2-a384-f42eb795911a
 
 ###

@@ -6,5 +6,8 @@ namespace DevHabit.Api.Dtos.Habits
   public static class HabitQueries
   {
     public static Expression<Func<Habit, HabitDto>> ProjectToDto() => habit => habit.ToDto();
+
+    public static Expression<Func<Habit, HabitWithTagsDto>> ProjectToDtoWithTags() =>
+      habit => habit.ToDtoWithTags();
   }
 }

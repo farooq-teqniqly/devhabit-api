@@ -9,6 +9,7 @@ namespace DevHabit.Api.Database
       : base(options) { }
 
     public DbSet<Habit> Habits => Set<Habit>();
+    public DbSet<HabitTag> HabitTags => Set<HabitTag>();
     public DbSet<Tag> Tags => Set<Tag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

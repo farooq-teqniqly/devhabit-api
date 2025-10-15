@@ -56,15 +56,16 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult<HabitDto>> GetHabit(
+    public async Task<ActionResult<HabitWithTagsDto>> GetHabit(
       string id,
       [FromQuery] bool includeArchived = false
     )
     {
       var habitDto = await _dbContext
-        .Habits.Where(h => h.Id == id)
+        .Habits.Include(h => h.Tags)
+        .Where(h => h.Id == id)
         .Where(h => !h.IsArchived || includeArchived)
-        .Select(HabitQueries.ProjectToDto())
+        .Select(HabitQueries.ProjectToDtoWithTags())
         .SingleOrDefaultAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
 

@@ -4,7 +4,7 @@ GET {{DevHabit.Api_HostAddress}}/habits
 
 ###
 
-GET {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
+GET {{DevHabit.Api_HostAddress}}/habits/h_0199e8ce-4522-7d72-9fc5-b56dc0e7b475
 
 ###
 
@@ -97,5 +97,23 @@ Accept: application/json
   }
     
 ]
+
+###
+
+PUT {{DevHabit.Api_HostAddress}}/habits/h_0199e8ce-4522-7d72-9fc5-b56dc0e7b475/tags
+Content-Type: application/json
+Accept: application/json
+
+{
+  "tagids": [
+    "t_0199e8cf-b6e8-7b38-a496-50882f337fa0",
+     "t_0199e8cf-c605-7521-ba65-3dd922302649",
+     "t_0199e8cf-d1e8-71b7-8cb0-ba29b7fac53b"
+  ]
+}
+
+###
+
+DELETE {{DevHabit.Api_HostAddress}}/habits/h_0199e8ce-4522-7d72-9fc5-b56dc0e7b475/tags/t_0199e8cf-d1e8-71b7-8cb0-ba29b7fac53b
 
 ###

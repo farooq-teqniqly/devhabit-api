@@ -39,6 +39,42 @@ namespace DevHabit.Api.Dtos.Habits
       return habitDto;
     }
 
+    public static HabitWithTagsDto ToDtoWithTags(this Habit habit)
+    {
+      ArgumentNullException.ThrowIfNull(habit);
+
+      var habitDto = new HabitWithTagsDto
+      {
+        Id = habit.Id,
+        Name = habit.Name,
+        Description = habit.Description,
+        Type = (HabitTypeDto)habit.Type,
+        Frequency = new FrequencyDto
+        {
+          Type = (FrequencyTypeDto)habit.Frequency.Type,
+          TimesPerPeriod = habit.Frequency.TimesPerPeriod,
+        },
+        Target = new TargetDto { Value = habit.Target.Value, Unit = habit.Target.Unit },
+        Status = (HabitStatusDto)habit.Status,
+        IsArchived = habit.IsArchived,
+        EndDate = habit.EndDate,
+        Milestone =
+          habit.Milestone == null
+            ? null
+            : new MilestoneDto
+            {
+              Target = habit.Milestone.Target,
+              Current = habit.Milestone.Current,
+            },
+        CreatedAtUtc = habit.CreatedAtUtc,
+        UpdatedAtUtc = habit.UpdatedAtUtc,
+        LastCompletedAtUtc = habit.LastCompletedAtUtc,
+        Tags = (habit.Tags).Select(t => t.Name).ToArray(),
+      };
+
+      return habitDto;
+    }
+
     public static Habit ToEntity(this CreateHabitDto dto)
     {
       ArgumentNullException.ThrowIfNull(dto);
