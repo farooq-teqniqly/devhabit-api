@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace DevHabit.Api.Dtos.Habits
 {
   public sealed record HabitWithTagsDto
@@ -15,6 +17,7 @@ namespace DevHabit.Api.Dtos.Habits
     public required TargetDto Target { get; init; }
     public required HabitTypeDto Type { get; init; }
     public DateTimeOffset? UpdatedAtUtc { get; init; }
-    public required string[] Tags { get; init; } = [];
+    public required IReadOnlyCollection<string> Tags { get; init; } =
+      new ReadOnlyCollection<string>([]);
   }
 }

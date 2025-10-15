@@ -76,11 +76,13 @@ namespace DevHabit.Api.Controllers
         return BadRequest("One or more tag ids are invalid.");
       }
 
-      habit.HabitTags.RemoveAll(ht => !upsertHabitTagsDto.TagIds.Contains(ht.TagId));
+      ((List<HabitTag>)habit.HabitTags).RemoveAll(ht =>
+        !upsertHabitTagsDto.TagIds.Contains(ht.TagId)
+      );
 
       var tagIdsToAdd = upsertHabitTagsDto.TagIds.Except(currentTagIds).ToArray();
 
-      habit.HabitTags.AddRange(
+      ((List<HabitTag>)habit.HabitTags).AddRange(
         tagIdsToAdd.Select(tagId => new HabitTag
         {
           HabitId = habitId,
