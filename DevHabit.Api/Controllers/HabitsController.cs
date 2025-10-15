@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
+using DevHabit.Api.Dtos.Habits;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
