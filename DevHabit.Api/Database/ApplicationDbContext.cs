@@ -5,10 +5,11 @@ namespace DevHabit.Api.Database
 {
   public sealed class ApplicationDbContext : DbContext
   {
-    public DbSet<Habit> Habits => Set<Habit>();
-
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
       : base(options) { }
+
+    public DbSet<Habit> Habits => Set<Habit>();
+    public DbSet<Tag> Tags => Set<Tag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

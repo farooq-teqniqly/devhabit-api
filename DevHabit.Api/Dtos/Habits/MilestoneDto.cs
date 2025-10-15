@@ -1,4 +1,4 @@
-namespace DevHabit.Api.Dtos;
+namespace DevHabit.Api.Dtos.Habits;
 
 public sealed record MilestoneDto
 {

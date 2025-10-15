@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
+using DevHabit.Api.Dtos.Habits;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult<HabitDto>> CreateHabit(CreateHabitDto createHabitDto)
+    public async Task<ActionResult<HabitDto>> CreateHabit([FromBody] CreateHabitDto createHabitDto)
     {
       var habit = createHabitDto.ToEntity();
 
@@ -100,6 +101,8 @@ namespace DevHabit.Api.Controllers
       [FromBody] JsonPatchDocument<HabitDto> patchDocument
     )
     {
+      ArgumentNullException.ThrowIfNull(patchDocument);
+
       var allowedPaths = new[] { "/name", "/description", "/isarchived" };
 
       var invalidOperations = patchDocument

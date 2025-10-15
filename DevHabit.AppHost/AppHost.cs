@@ -5,7 +5,7 @@ var sql = builder
   .WithLifetime(ContainerLifetime.Persistent)
   .WithImage("mssql/server:2022-CU21-ubuntu-22.04");
 
-var db = sql.AddDatabase("devhabit-db", "devhabit");
+var db = sql.AddDatabase("devhabitdb", "devhabit");
 
 var appService = builder.AddAzureAppServiceEnvironment("appservice-env");
 
