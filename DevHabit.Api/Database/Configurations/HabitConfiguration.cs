@@ -10,7 +10,7 @@ namespace DevHabit.Api.Database.Configurations
     {
       builder.HasKey(h => h.Id);
       builder.Property(h => h.Id).HasMaxLength(100);
-      builder.Property(h => h.Name).HasMaxLength(100);
+      builder.Property(h => h.Name).IsRequired().HasMaxLength(100);
       builder.Property(h => h.Description).HasMaxLength(500);
 
       builder.OwnsOne(h => h.Frequency);

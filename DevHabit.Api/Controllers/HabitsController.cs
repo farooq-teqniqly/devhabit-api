@@ -21,7 +21,7 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult<HabitDto>> CreateHabit(CreateHabitDto createHabitDto)
+    public async Task<ActionResult<HabitDto>> CreateHabit([FromBody] CreateHabitDto createHabitDto)
     {
       var habit = createHabitDto.ToEntity();
 
@@ -100,6 +100,8 @@ namespace DevHabit.Api.Controllers
       [FromBody] JsonPatchDocument<HabitDto> patchDocument
     )
     {
+      ArgumentNullException.ThrowIfNull(patchDocument);
+
       var allowedPaths = new[] { "/name", "/description", "/isarchived" };
 
       var invalidOperations = patchDocument
