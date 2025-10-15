@@ -165,3 +165,5 @@ jobs:
               appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
               devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
               devhabit_api_database_connection_string='${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}'
+      - name: Restart App Service
+        run: az webapp restart --name ${{ env.ROOT_NAME }}-api --resource-group ${{ env.ROOT_NAME }}-rg
