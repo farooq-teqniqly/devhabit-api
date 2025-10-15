@@ -153,6 +153,7 @@ jobs:
           ./app-bundle.exe --connection "${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}"
           cd ..
       - name: Deploy webapp
+        id: deploy-webapp
         run: |
           az deployment group create \
             --name "${{ env.ROOT_NAME }}-deploy-webapp-${{ steps.commit.outputs.hash }}" \
@@ -165,5 +166,13 @@ jobs:
               appservice_env_outputs_azure_container_registry_managed_identity_client_id='${{ steps.outputs.outputs.mi_client_id }}' \
               devhabit_api_containerimage='${{ steps.outputs.outputs.acr_endpoint }}/${{ env.ROOT_NAME }}-api:latest' \
               devhabit_api_database_connection_string='${{ secrets.DEVHABIT_DB_CONNECTION_STRING }}'
+
+      - name: Get deployment outputs
+        if: steps.deploy-webapp.outcome == 'success'
+        id: webapp-outputs
+        run: |
+          outputs=$(az deployment group show --name  "${{ env.ROOT_NAME }}-deploy-webapp-${{ steps.commit.outputs.hash }}" --resource-group ${{ env.ROOT_NAME }}-rg --query properties.outputs -o json)
+          echo "webapp_name=$(echo $outputs | jq -r '.webAppName.value')" >> $GITHUB_OUTPUT
+
       - name: Restart App Service
-        run: az webapp restart --name ${{ env.ROOT_NAME }}-appsvc --resource-group ${{ env.ROOT_NAME }}-rg
+        run: az webapp restart --name ${{ steps.webapp-outputs.outputs.webapp_name }} --resource-group ${{ env.ROOT_NAME }}-rg
