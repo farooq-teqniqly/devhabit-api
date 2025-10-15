@@ -24,6 +24,8 @@ namespace DevHabit.Api.Database.Configurations
       );
 
       builder.OwnsOne(h => h.Milestone);
+
+      builder.HasMany(h => h.Tags).WithMany().UsingEntity<HabitTag>();
     }
   }
 }
