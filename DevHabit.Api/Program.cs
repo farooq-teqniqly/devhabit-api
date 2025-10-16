@@ -23,13 +23,7 @@ builder
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
-builder.Services.AddProblemDetails(opts =>
-{
-  opts.CustomizeProblemDetails = context =>
-  {
-    context.ProblemDetails.Extensions.TryAdd("identity", context.HttpContext.User.Identity?.Name);
-  };
-});
+builder.Services.AddProblemDetails();
 
 builder.Services.AddOpenApi();
 
