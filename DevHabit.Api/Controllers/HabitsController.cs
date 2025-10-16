@@ -3,6 +3,7 @@ using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Dtos.Tags;
+using DevHabit.Api.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -90,11 +91,17 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
+      [FromQuery(Name = "q")] string? searchTerm,
       [FromQuery] bool includeArchived = false
     )
     {
       var habitDtos = await _dbContext
         .Habits.Where(h => !h.IsArchived || includeArchived)
+        .Where(h =>
+          searchTerm == null
+          || h.Name.Contains(searchTerm)
+          || (h.Description != null && h.Description.Contains(searchTerm))
+        )
         .Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
