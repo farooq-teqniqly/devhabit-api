@@ -27,28 +27,14 @@ namespace DevHabit.Api.Controllers
     [HttpPost]
     public async Task<ActionResult<HabitDto>> CreateHabit(
       [FromBody] CreateHabitDto createHabitDto,
-      IValidator<CreateHabitDto> validator,
-      ProblemDetailsFactory problemDetailsFactory
+      IValidator<CreateHabitDto> validator
     )
     {
       ArgumentNullException.ThrowIfNull(validator);
-      ArgumentNullException.ThrowIfNull(problemDetailsFactory);
 
-      var validationResult = await validator
-        .ValidateAsync(createHabitDto, HttpContext.RequestAborted)
+      await validator
+        .ValidateAndThrowAsync(createHabitDto, HttpContext.RequestAborted)
         .ConfigureAwait(false);
-
-      if (!validationResult.IsValid)
-      {
-        var problemDetails = problemDetailsFactory.CreateProblemDetails(
-          HttpContext,
-          StatusCodes.Status400BadRequest
-        );
-
-        problemDetails.Extensions.Add("errors", validationResult.ToDictionary());
-
-        return BadRequest(problemDetails);
-      }
 
       var habit = createHabitDto.ToEntity();
 

@@ -24,28 +24,14 @@ namespace DevHabit.Api.Controllers
     [HttpPost]
     public async Task<ActionResult<TagDto>> CreateTag(
       [FromBody] CreateTagDto createTagDto,
-      IValidator<CreateTagDto> validator,
-      ProblemDetailsFactory problemDetailsFactory
+      IValidator<CreateTagDto> validator
     )
     {
       ArgumentNullException.ThrowIfNull(validator);
-      ArgumentNullException.ThrowIfNull(problemDetailsFactory);
 
-      var validationResult = await validator
-        .ValidateAsync(createTagDto, HttpContext.RequestAborted)
+      await validator
+        .ValidateAndThrowAsync(createTagDto, HttpContext.RequestAborted)
         .ConfigureAwait(false);
-
-      if (!validationResult.IsValid)
-      {
-        var problemDetails = problemDetailsFactory.CreateProblemDetails(
-          HttpContext,
-          StatusCodes.Status400BadRequest
-        );
-
-        problemDetails.Extensions.Add("errors", validationResult.ToDictionary());
-
-        return BadRequest(problemDetails);
-      }
 
       var tag = createTagDto.ToEntity();
 
