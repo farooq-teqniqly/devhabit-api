@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
+using DevHabit.Api.Dtos.Tags;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevHabit.Api.Controllers
@@ -19,8 +22,31 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult<TagDto>> CreateTag([FromBody] CreateTagDto createTagDto)
+    public async Task<ActionResult<TagDto>> CreateTag(
+      [FromBody] CreateTagDto createTagDto,
+      IValidator<CreateTagDto> validator,
+      ProblemDetailsFactory problemDetailsFactory
+    )
     {
+      ArgumentNullException.ThrowIfNull(validator);
+      ArgumentNullException.ThrowIfNull(problemDetailsFactory);
+
+      var validationResult = await validator
+        .ValidateAsync(createTagDto, HttpContext.RequestAborted)
+        .ConfigureAwait(false);
+
+      if (!validationResult.IsValid)
+      {
+        var problemDetails = problemDetailsFactory.CreateProblemDetails(
+          HttpContext,
+          StatusCodes.Status400BadRequest
+        );
+
+        problemDetails.Extensions.Add("errors", validationResult.ToDictionary());
+
+        return BadRequest(problemDetails);
+      }
+
       var tag = createTagDto.ToEntity();
 
       var tegExists = await _dbContext
@@ -29,8 +55,9 @@ namespace DevHabit.Api.Controllers
 
       if (tegExists)
       {
-        return Conflict(
-          $"The tag with name '{tag.Name}' already exists. Tag names must be globally unique."
+        return Problem(
+          detail: $"The tag with name '{tag.Name}' already exists. Tag names must be globally unique.",
+          statusCode: StatusCodes.Status409Conflict
         );
       }
 

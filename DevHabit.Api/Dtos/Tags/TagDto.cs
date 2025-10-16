@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace DevHabit.Api.Dtos
+namespace DevHabit.Api.Dtos.Tags
 {
   public sealed record TagsCollectionDto
   {

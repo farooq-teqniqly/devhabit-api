@@ -1,6 +1,6 @@
 using DevHabit.Api.Entities;
 
-namespace DevHabit.Api.Dtos
+namespace DevHabit.Api.Dtos.Tags
 {
   public static class TagMappings
   {

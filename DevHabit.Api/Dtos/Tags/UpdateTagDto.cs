@@ -1,4 +1,4 @@
-namespace DevHabit.Api.Dtos
+namespace DevHabit.Api.Dtos.Tags
 {
   public sealed record UpdateTagDto
   {
