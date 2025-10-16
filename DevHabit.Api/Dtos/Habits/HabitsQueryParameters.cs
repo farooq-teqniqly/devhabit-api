@@ -5,6 +5,7 @@ namespace DevHabit.Api.Dtos.Habits
 {
   public sealed record HabitsQueryParameters
   {
+    public bool? IncludeArchived { get; set; }
     public HabitType? Type { get; init; }
 
     [FromQuery(Name = "q")]
