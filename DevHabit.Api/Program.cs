@@ -2,6 +2,7 @@ using DevHabit.Api.Converters;
 using DevHabit.Api.Database;
 using DevHabit.Api.Extensions;
 using DevHabit.ServiceDefaults;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -19,6 +20,8 @@ builder
   {
     opts.JsonSerializerOptions.Converters.Add(new CaseInsensitiveStringEnumConverter());
   });
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
 builder.Services.AddOpenApi();
 
