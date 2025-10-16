@@ -88,19 +88,18 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
-      [FromQuery(Name = "q")] string? searchTerm,
-      [FromQuery] HabitType? type,
+      [FromQuery] HabitsQueryParameters qp,
       [FromQuery] bool includeArchived = false
     )
     {
       var habitDtos = await _dbContext
         .Habits.Where(h => !h.IsArchived || includeArchived)
         .Where(h =>
-          searchTerm == null
-          || h.Name.Contains(searchTerm)
-          || (h.Description != null && h.Description.Contains(searchTerm))
+          qp.SearchTerm == null
+          || h.Name.Contains(qp.SearchTerm)
+          || (h.Description != null && h.Description.Contains(qp.SearchTerm))
         )
-        .Where(h => type == null || h.Type == type)
+        .Where(h => qp.Type == null || h.Type == qp.Type)
         .Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
