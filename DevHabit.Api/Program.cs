@@ -1,6 +1,7 @@
 using DevHabit.Api.Converters;
 using DevHabit.Api.Database;
 using DevHabit.Api.Extensions;
+using DevHabit.Api.Middleware;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,9 @@ builder
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
 builder.Services.AddProblemDetails();
+
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddOpenApi();
 
@@ -66,6 +70,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseExceptionHandler();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

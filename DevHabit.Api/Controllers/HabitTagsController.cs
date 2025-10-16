@@ -60,7 +60,9 @@ namespace DevHabit.Api.Controllers
 
       var currentTagIds = habit.HabitTags.Select(ht => ht.TagId).ToHashSet();
 
+#pragma warning disable CA1062
       if (currentTagIds.SetEquals(upsertHabitTagsDto.TagIds))
+#pragma warning restore CA1062
       {
         return NoContent();
       }
