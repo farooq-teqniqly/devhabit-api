@@ -1,12 +1,10 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
-using DevHabit.Api.Dtos;
 using DevHabit.Api.Dtos.Habits;
-using DevHabit.Api.Dtos.Tags;
+using DevHabit.Api.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevHabit.Api.Controllers
@@ -90,11 +88,20 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
-      [FromQuery] bool includeArchived = false
+      [FromQuery] HabitsQueryParameters qp
     )
     {
       var habitDtos = await _dbContext
-        .Habits.Where(h => !h.IsArchived || includeArchived)
+        .Habits.Where(h => !h.IsArchived || qp.IncludeArchived == true)
+        .Where(h =>
+          qp.SearchTerm == null
+          || EF.Functions.Like(h.Name, $"%{EscapeLikePattern(qp.SearchTerm)}%")
+          || (
+            h.Description != null
+            && EF.Functions.Like(h.Description, $"%{EscapeLikePattern(qp.SearchTerm)}%")
+          )
+        )
+        .Where(h => qp.Type == null || h.Type == qp.Type)
         .Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);
@@ -174,6 +181,14 @@ namespace DevHabit.Api.Controllers
       await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
       return NoContent();
+    }
+
+    private static string EscapeLikePattern(string pattern)
+    {
+      return pattern
+        .Replace("[", "[[]", StringComparison.InvariantCultureIgnoreCase)
+        .Replace("%", "[%]", StringComparison.InvariantCultureIgnoreCase)
+        .Replace("_", "[_]", StringComparison.InvariantCultureIgnoreCase);
     }
   }
 }
