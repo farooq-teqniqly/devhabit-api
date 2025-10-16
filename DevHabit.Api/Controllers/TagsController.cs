@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos;
+using DevHabit.Api.Dtos.Tags;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -54,8 +55,9 @@ namespace DevHabit.Api.Controllers
 
       if (tegExists)
       {
-        return Conflict(
-          $"The tag with name '{tag.Name}' already exists. Tag names must be globally unique."
+        return Problem(
+          detail: $"The tag with name '{tag.Name}' already exists. Tag names must be globally unique.",
+          statusCode: StatusCodes.Status409Conflict
         );
       }
 

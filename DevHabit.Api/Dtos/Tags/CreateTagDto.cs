@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace DevHabit.Api.Dtos
+namespace DevHabit.Api.Dtos.Tags
 {
   public sealed record CreateTagDto
   {
