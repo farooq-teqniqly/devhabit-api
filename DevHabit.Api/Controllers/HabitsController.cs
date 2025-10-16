@@ -97,8 +97,8 @@ namespace DevHabit.Api.Controllers
         )
         .Where(h =>
           qp.SearchTerm == null
-          || h.Name.Contains(qp.SearchTerm)
-          || (h.Description != null && h.Description.Contains(qp.SearchTerm))
+          || EF.Functions.Like(h.Name, $"%{qp.SearchTerm}%")
+          || (h.Description != null && EF.Functions.Like(h.Description, $"%{qp.SearchTerm}%"))
         )
         .Where(h => qp.Type == null || h.Type == qp.Type)
         .Select(HabitQueries.ProjectToDto())
