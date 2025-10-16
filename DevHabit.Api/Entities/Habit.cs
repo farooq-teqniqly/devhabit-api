@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace DevHabit.Api.Entities
 {
   public sealed class Habit

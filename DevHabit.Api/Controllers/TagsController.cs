@@ -1,10 +1,8 @@
 using System.Collections.ObjectModel;
 using DevHabit.Api.Database;
-using DevHabit.Api.Dtos;
 using DevHabit.Api.Dtos.Tags;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevHabit.Api.Controllers

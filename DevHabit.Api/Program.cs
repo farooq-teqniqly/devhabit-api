@@ -1,4 +1,3 @@
-using DevHabit.Api.Converters;
 using DevHabit.Api.Database;
 using DevHabit.Api.Extensions;
 using DevHabit.Api.Middleware;
@@ -6,6 +5,8 @@ using DevHabit.ServiceDefaults;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,9 @@ builder
   {
     opts.ReturnHttpNotAcceptable = true;
   })
-  .AddNewtonsoftJson()
-  .AddJsonOptions(opts =>
+  .AddNewtonsoftJson(opts =>
   {
-    opts.JsonSerializerOptions.Converters.Add(new CaseInsensitiveStringEnumConverter());
+    opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
   });
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
