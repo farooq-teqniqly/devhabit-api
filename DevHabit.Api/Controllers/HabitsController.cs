@@ -92,13 +92,14 @@ namespace DevHabit.Api.Controllers
     )
     {
       var habitDtos = await _dbContext
-        .Habits.Where(h =>
-          !h.IsArchived || (qp.IncludeArchived != null && qp.IncludeArchived.Value)
-        )
+        .Habits.Where(h => !h.IsArchived || qp.IncludeArchived == true)
         .Where(h =>
           qp.SearchTerm == null
-          || EF.Functions.Like(h.Name, $"%{qp.SearchTerm}%")
-          || (h.Description != null && EF.Functions.Like(h.Description, $"%{qp.SearchTerm}%"))
+          || EF.Functions.Like(h.Name, $"%{EscapeLikePattern(qp.SearchTerm)}%")
+          || (
+            h.Description != null
+            && EF.Functions.Like(h.Description, $"%{EscapeLikePattern(qp.SearchTerm)}%")
+          )
         )
         .Where(h => qp.Type == null || h.Type == qp.Type)
         .Select(HabitQueries.ProjectToDto())
@@ -180,6 +181,14 @@ namespace DevHabit.Api.Controllers
       await _dbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
       return NoContent();
+    }
+
+    private static string EscapeLikePattern(string pattern)
+    {
+      return pattern
+        .Replace("[", "[[]", StringComparison.InvariantCultureIgnoreCase)
+        .Replace("%", "[%]", StringComparison.InvariantCultureIgnoreCase)
+        .Replace("_", "[_]", StringComparison.InvariantCultureIgnoreCase);
     }
   }
 }
