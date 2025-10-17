@@ -1,3 +1,4 @@
+using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
@@ -6,6 +7,8 @@ using DevHabit.Api.Middleware;
 using DevHabit.Api.Services.Sorting;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Newtonsoft.Json.Converters;
@@ -25,6 +28,13 @@ builder
     opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
     opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
   });
+
+builder.Services.Configure<MvcOptions>(options =>
+{
+  var formatter = options.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>().First();
+
+  formatter.SupportedMediaTypes.Add(ApplicationMediaTypes.DevHabitApi);
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
