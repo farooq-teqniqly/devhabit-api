@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Linq.Dynamic.Core;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
+using DevHabit.Api.Services.Sorting;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -88,9 +90,22 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
-      [FromQuery] HabitsQueryParameters qp
+      [FromQuery] HabitsQueryParameters qp,
+      SortMappingProvider sortMappingProvider
     )
     {
+      ArgumentNullException.ThrowIfNull(sortMappingProvider);
+
+      if (!sortMappingProvider.ValidateMappings<HabitDto, Habit>(qp.Sort))
+      {
+        return Problem(
+          statusCode: StatusCodes.Status400BadRequest,
+          detail: $"'{qp.Sort}' is not a valid sort attribute."
+        );
+      }
+
+      var sortMappings = sortMappingProvider.GetMappings<HabitDto, Habit>();
+
       var habitDtos = await _dbContext
         .Habits.Where(h => !h.IsArchived || qp.IncludeArchived == true)
         .Where(h =>
@@ -102,6 +117,7 @@ namespace DevHabit.Api.Controllers
           )
         )
         .Where(h => qp.Type == null || h.Type == qp.Type)
+        .ApplySort(qp.Sort, sortMappings)
         .Select(HabitQueries.ProjectToDto())
         .ToListAsync(HttpContext.RequestAborted)
         .ConfigureAwait(false);

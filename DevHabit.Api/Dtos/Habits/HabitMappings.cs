@@ -1,9 +1,27 @@
 using DevHabit.Api.Entities;
+using DevHabit.Api.Services.Sorting;
 
 namespace DevHabit.Api.Dtos.Habits
 {
   public static class HabitMappings
   {
+    public static readonly SortMappingDefinition<HabitDto, Habit> SortMapping = new()
+    {
+      Mappings =
+      [
+        new SortMapping(nameof(HabitDto.Name), nameof(Habit.Name)),
+        new SortMapping(nameof(HabitDto.Type), nameof(Habit.Type)),
+        new SortMapping(nameof(HabitDto.Status), nameof(Habit.Status)),
+        new SortMapping(nameof(HabitDto.EndDate), nameof(Habit.EndDate)),
+        new SortMapping(nameof(HabitDto.UpdatedAtUtc), nameof(Habit.UpdatedAtUtc)),
+        new SortMapping(nameof(HabitDto.LastCompletedAtUtc), nameof(Habit.LastCompletedAtUtc)),
+        new SortMapping(
+          $"{nameof(HabitDto.Frequency)}.{nameof(FrequencyDto.Type)}",
+          $"{nameof(Habit.Frequency)}.{nameof(Frequency.Type)}"
+        ),
+      ],
+    };
+
     public static HabitDto ToDto(this Habit habit)
     {
       ArgumentNullException.ThrowIfNull(habit);
@@ -69,7 +87,7 @@ namespace DevHabit.Api.Dtos.Habits
         CreatedAtUtc = habit.CreatedAtUtc,
         UpdatedAtUtc = habit.UpdatedAtUtc,
         LastCompletedAtUtc = habit.LastCompletedAtUtc,
-        Tags = (habit.Tags).Select(t => t.Name).ToArray(),
+        Tags = habit.Tags.Select(t => t.Name).ToArray(),
       };
 
       return habitDto;
@@ -112,6 +130,7 @@ namespace DevHabit.Api.Dtos.Habits
       habit.Description = dto.Description;
       habit.Type = (HabitType)dto.Type;
       habit.EndDate = dto.EndDate;
+      habit.Status = dto.Status == null ? HabitStatus.Ongoing : (HabitStatus)dto.Status;
 
       habit.Frequency = new Frequency
       {

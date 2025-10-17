@@ -1,4 +1,4 @@
-﻿﻿using DevHabit.Api.Entities;
+﻿using DevHabit.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevHabit.Api.Dtos.Habits
@@ -10,5 +10,7 @@ namespace DevHabit.Api.Dtos.Habits
 
     [FromQuery(Name = "q")]
     public string? SearchTerm { get; set; }
+
+    public string? Sort { get; set; }
   }
 }
