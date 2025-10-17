@@ -23,6 +23,7 @@ builder
   .AddNewtonsoftJson(opts =>
   {
     opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+    opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
   });
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
