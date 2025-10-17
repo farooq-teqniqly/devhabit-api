@@ -7,6 +7,9 @@ GET {{DevHabit.Api_HostAddress}}/habits
 GET {{DevHabit.Api_HostAddress}}/habits?includearchived=true
 ###
 
+GET {{DevHabit.Api_HostAddress}}/habits?sort=name,type%20desc,status%20desc,frequency.type
+###
+
 GET {{DevHabit.Api_HostAddress}}/habits/h_0199e8ce-4522-7d72-9fc5-b56dc0e7b475
 
 ###
@@ -38,16 +41,16 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "Daily Walk",
-  "description": "Walk 4 miles every day",
-  "type": 1,
+  "name": "Read every day",
+  "description": "Read a bit every day.",
+  "type": "binary",
   "frequency": {
     "timesPerPeriod": 1,
-    "type": 1
+    "type": "daily"
   },
   "target": {
-    "unit": "miles",
-    "value": 4
+    "unit": "sessions",
+    "value": 20
   },
   "endDate": null,
   "milestone": null
@@ -63,27 +66,25 @@ DELETE {{DevHabit.Api_HostAddress}}/habits/h_0199ef2c-1d6b-788a-a01c-1739deac443
 
 ###
 
-PUT {{DevHabit.Api_HostAddress}}/habits/h_0199e18a-5a46-7b70-a5f5-ff83eeaa914f
+PUT {{DevHabit.Api_HostAddress}}/habits/h_0199f07a-8dcb-7e42-a91e-98665fcc05d9
 Content-Type: application/json
 Accept: application/json
 
 {
-      "description": "Exercise for at least 30 minutes every day",
-      "endDate": null,
-      "frequency": {
-        "timesPerPeriod": 1,
-        "type": "Daily"
-      },
-      "milestone": {
-        "current": 20,
-        "target": 30
-      },
-      "name": "Daily Exercise",
-      "target": {
-        "unit": "minutes",
-        "value": 20
-      },
-      "type": "Binary"
+      "name": "Read every day",
+  "description": "Read a bit every day.",
+  "type": "binary",
+  "frequency": {
+    "timesPerPeriod": 1,
+    "type": "daily"
+  },
+  "target": {
+    "unit": "sessions",
+    "value": 20
+  },
+  "endDate": null,
+  "milestone": null,
+  "status": "completed"
     }
 
 ###

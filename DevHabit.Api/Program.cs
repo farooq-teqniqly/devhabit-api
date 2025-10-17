@@ -1,6 +1,9 @@
 using DevHabit.Api.Database;
+using DevHabit.Api.Dtos.Habits;
+using DevHabit.Api.Entities;
 using DevHabit.Api.Extensions;
 using DevHabit.Api.Middleware;
+using DevHabit.Api.Services.Sorting;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +61,12 @@ builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
   settings.DisableHealthChecks = false;
   settings.DisableRetry = false;
 });
+
+builder.Services.AddSingleton<SortMappingProvider>();
+
+builder.Services.AddSingleton<ISortMappingDefinition, SortMappingDefinition<HabitDto, Habit>>(_ =>
+  HabitMappings.SortMapping
+);
 
 var app = builder.Build();
 
