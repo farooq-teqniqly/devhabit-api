@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq.Dynamic.Core;
 using DevHabit.Api.Database;
+using DevHabit.Api.Dtos.Common;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
 using DevHabit.Api.Services.Sorting;
@@ -8,6 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace DevHabit.Api.Controllers
 {
@@ -89,7 +91,7 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<HabitsCollectionDto>> GetHabits(
+    public async Task<ActionResult<PaginationResult<HabitDto>>> GetHabits(
       [FromQuery] HabitsQueryParameters qp,
       SortMappingProvider sortMappingProvider
     )
@@ -106,7 +108,7 @@ namespace DevHabit.Api.Controllers
 
       var sortMappings = sortMappingProvider.GetMappings<HabitDto, Habit>();
 
-      var habitDtos = await _dbContext
+      var query = _dbContext
         .Habits.Where(h => !h.IsArchived || qp.IncludeArchived == true)
         .Where(h =>
           qp.SearchTerm == null
@@ -118,16 +120,13 @@ namespace DevHabit.Api.Controllers
         )
         .Where(h => qp.Type == null || h.Type == qp.Type)
         .ApplySort(qp.Sort, sortMappings)
-        .Select(HabitQueries.ProjectToDto())
-        .ToListAsync(HttpContext.RequestAborted)
+        .Select(HabitQueries.ProjectToDto());
+
+      var paginationResult = await PaginationResult<HabitDto>
+        .CreateAsync(query, qp.Page, qp.PageSize, HttpContext.RequestAborted)
         .ConfigureAwait(false);
 
-      var habitCollection = new HabitsCollectionDto
-      {
-        Items = new ReadOnlyCollection<HabitDto>(habitDtos),
-      };
-
-      return Ok(habitCollection);
+      return Ok(paginationResult);
     }
 
     [HttpPatch]

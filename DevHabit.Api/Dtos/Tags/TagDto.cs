@@ -2,11 +2,6 @@ using System.Collections.ObjectModel;
 
 namespace DevHabit.Api.Dtos.Tags
 {
-  public sealed record TagsCollectionDto
-  {
-    public required ReadOnlyCollection<TagDto> Items { get; init; }
-  }
-
   public sealed record TagDto
   {
     public required DateTimeOffset CreatedAtUtc { get; set; }
