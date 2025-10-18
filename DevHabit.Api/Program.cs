@@ -7,6 +7,7 @@ using DevHabit.Api.Middleware;
 using DevHabit.Api.Services.Sorting;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
   }
 });
 
+builder.Services.AddDbContext<ApplicationIdentityDbContext>(opts =>
+{
+  var connectionString =
+    builder.Configuration.GetConnectionString("devhabitdb")
+    ?? throw new InvalidOperationException("Database connection string was not specified.");
+
+  opts.UseSqlServer(
+      connectionString,
+      sqlOpts =>
+      {
+        sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Identity);
+      }
+    )
+    .UseSnakeCaseNamingConvention();
+
+  if (builder.Environment.IsDevelopment())
+  {
+    opts.EnableSensitiveDataLogging();
+  }
+});
+
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
 {
   settings.DisableTracing = false;
@@ -78,6 +100,10 @@ builder.Services.AddSingleton<SortMappingProvider>();
 builder.Services.AddSingleton<ISortMappingDefinition, SortMappingDefinition<HabitDto, Habit>>(_ =>
   HabitMappings.SortMapping
 );
+
+builder
+  .Services.AddIdentity<IdentityUser, IdentityRole>()
+  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
 var app = builder.Build();
 

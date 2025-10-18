@@ -64,11 +64,31 @@ After ensuring you have the latest EF tools, you can run migrations:
 
 ```bash
 # Add a new migration
-dotnet ef migrations add MigrationName --project DevHabit.Api --output-dir Migrations\Application
+dotnet ef migrations add MigrationName --context ApplicationDbContext --project DevHabit.Api --output-dir Migrations\Application
 
 # Update the database
 dotnet ef database update --project DevHabit.Api
 ```
+
+## Running ASP.NET Core Identity Migrations
+
+To set up and manage migrations for ASP.NET Core Identity, follow these steps:
+
+1. **Add a new migration**:
+
+   ```bash
+   dotnet ef migrations add Add_Identity --context ApplicationIdentityDbContext --project DevHabit.Api --output-dir Migrations\Identity
+   ```
+
+   This will create a new migration named `Add_Identity` in the `Migrations\Identity` directory of the `DevHabit.Api` project.
+
+2. **Update the database**:
+
+   ```bash
+   dotnet ef database update --context ApplicationIdentityDbContext --project DevHabit.Api
+   ```
+
+   This will apply the migration to the database using the `ApplicationIdentityDbContext`.
 
 ## Deployment to Azure
 
