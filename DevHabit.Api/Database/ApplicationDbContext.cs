@@ -11,6 +11,7 @@ namespace DevHabit.Api.Database
     public DbSet<Habit> Habits => Set<Habit>();
     public DbSet<HabitTag> HabitTags => Set<HabitTag>();
     public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

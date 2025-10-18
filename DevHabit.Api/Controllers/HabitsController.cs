@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq.Dynamic.Core;
+using System.Net.Mime;
+using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Common;
 using DevHabit.Api.Dtos.Habits;
@@ -15,6 +17,7 @@ namespace DevHabit.Api.Controllers
 {
   [ApiController]
   [Route("habits")]
+  [Produces(MediaTypeNames.Application.Json, ApplicationMediaTypes.DevHabitApi)]
   public sealed class HabitsController : ControllerBase
   {
     private readonly ApplicationDbContext _dbContext;
@@ -27,6 +30,8 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<HabitDto>> CreateHabit(
       [FromBody] CreateHabitDto createHabitDto,
       IValidator<CreateHabitDto> validator
@@ -50,6 +55,8 @@ namespace DevHabit.Api.Controllers
 
     [HttpDelete]
     [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteHabit(string id)
     {
       var habit = await _dbContext
@@ -70,6 +77,8 @@ namespace DevHabit.Api.Controllers
 
     [HttpGet]
     [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<HabitWithTagsDto>> GetHabit(
       string id,
       [FromQuery] bool includeArchived = false
@@ -91,6 +100,8 @@ namespace DevHabit.Api.Controllers
     }
 
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginationResult<HabitDto>>> GetHabits(
       [FromQuery] HabitsQueryParameters qp,
       SortMappingProvider sortMappingProvider
@@ -131,6 +142,9 @@ namespace DevHabit.Api.Controllers
 
     [HttpPatch]
     [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> PatchHabit(
       string id,
       [FromBody] JsonPatchDocument<HabitDto> patchDocument
@@ -181,6 +195,8 @@ namespace DevHabit.Api.Controllers
 
     [HttpPut]
     [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> UpdateHabit(string id, [FromBody] UpdateHabitDto updateHabitDto)
     {
       var habit = await _dbContext

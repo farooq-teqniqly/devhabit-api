@@ -1,3 +1,4 @@
+using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
@@ -6,6 +7,9 @@ using DevHabit.Api.Middleware;
 using DevHabit.Api.Services.Sorting;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Newtonsoft.Json.Converters;
@@ -25,6 +29,13 @@ builder
     opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
     opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
   });
+
+builder.Services.Configure<MvcOptions>(options =>
+{
+  var formatter = options.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>().First();
+
+  formatter.SupportedMediaTypes.Add(ApplicationMediaTypes.DevHabitApi);
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>(includeInternalTypes: true);
 
@@ -56,6 +67,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
   }
 });
 
+builder.Services.AddDbContext<ApplicationIdentityDbContext>(opts =>
+{
+  var connectionString =
+    builder.Configuration.GetConnectionString("devhabitdb")
+    ?? throw new InvalidOperationException("Database connection string was not specified.");
+
+  opts.UseSqlServer(
+      connectionString,
+      sqlOpts =>
+      {
+        sqlOpts.MigrationsHistoryTable(HistoryRepository.DefaultTableName, Schemas.Identity);
+      }
+    )
+    .UseSnakeCaseNamingConvention();
+
+  if (builder.Environment.IsDevelopment())
+  {
+    opts.EnableSensitiveDataLogging();
+  }
+});
+
 builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
 {
   settings.DisableTracing = false;
@@ -68,6 +100,10 @@ builder.Services.AddSingleton<SortMappingProvider>();
 builder.Services.AddSingleton<ISortMappingDefinition, SortMappingDefinition<HabitDto, Habit>>(_ =>
   HabitMappings.SortMapping
 );
+
+builder
+  .Services.AddIdentity<IdentityUser, IdentityRole>()
+  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
 var app = builder.Build();
 

@@ -5,6 +5,7 @@ GET {{DevHabit.Api_HostAddress}}/habits?page=1&sort=name%20desc
 ###
 
 GET {{DevHabit.Api_HostAddress}}/habits?includearchived=true
+Accept: application/vnd.teqniqly.devhabit+json
 ###
 
 GET {{DevHabit.Api_HostAddress}}/habits?sort=name,type%20desc,status%20desc,frequency.type
