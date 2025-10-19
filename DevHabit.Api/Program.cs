@@ -100,6 +100,10 @@ builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
   settings.DisableRetry = true;
 });
 
+builder
+  .Services.AddIdentity<IdentityUser, IdentityRole>()
+  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
+
 builder.Services.Configure<JwtAuthOptions>(builder.Configuration.GetSection("Jwt"));
 
 var jwtAuthOptions =
@@ -107,7 +111,11 @@ var jwtAuthOptions =
   ?? throw new InvalidOperationException("Jwt auth settings not specified.");
 
 builder
-  .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+  .Services.AddAuthentication(opts =>
+  {
+    opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
   .AddJwtBearer(opts =>
   {
     opts.TokenValidationParameters = new TokenValidationParameters
@@ -128,10 +136,6 @@ builder.Services.AddSingleton<ISortMappingDefinition, SortMappingDefinition<Habi
   HabitMappings.SortMapping
 );
 
-builder
-  .Services.AddIdentity<IdentityUser, IdentityRole>()
-  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
-
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -142,9 +146,8 @@ if (app.Environment.IsDevelopment())
   await app.ApplyMigrationsAsync();
 }
 
-app.UseHttpsRedirection();
 app.UseExceptionHandler();
-app.UseRouting();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
