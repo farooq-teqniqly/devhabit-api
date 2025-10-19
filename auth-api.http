@@ -1,0 +1,13 @@
+@DevHabit.Api_HostAddress = http://localhost:5123
+
+POST {{DevHabit.Api_HostAddress}}/auth/register
+Content-Type: application/json
+Accept: application/vnd.teqniqly.devhabit+json
+
+{
+  "email": "foo@bar.com",
+  "password": "Hello123!",
+  "confirmPassword": "Hello123!",
+  "name": "Bubba Gump"
+}
+###
