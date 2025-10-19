@@ -3,6 +3,7 @@ using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Auth;
 using DevHabit.Api.Dtos.Users;
+using DevHabit.Api.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,20 +22,24 @@ namespace DevHabit.Api.Controllers
     private readonly ApplicationIdentityDbContext _identityDbContext;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ApplicationDbContext _applicationDbContext;
+    private readonly TokenProvider _tokenProvider;
 
     public AuthController(
       ApplicationIdentityDbContext identityDbContext,
       UserManager<IdentityUser> userManager,
-      ApplicationDbContext applicationDbContext
+      ApplicationDbContext applicationDbContext,
+      TokenProvider tokenProvider
     )
     {
       ArgumentNullException.ThrowIfNull(identityDbContext);
       ArgumentNullException.ThrowIfNull(userManager);
       ArgumentNullException.ThrowIfNull(applicationDbContext);
+      ArgumentNullException.ThrowIfNull(tokenProvider);
 
       _identityDbContext = identityDbContext;
       _userManager = userManager;
       _applicationDbContext = applicationDbContext;
+      _tokenProvider = tokenProvider;
     }
 
     [HttpPost]
@@ -101,7 +106,11 @@ namespace DevHabit.Api.Controllers
 
         await transaction.CommitAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
-        return Ok(user.Id);
+        var accessTokenDto = _tokenProvider.CreateToken(
+          new TokenRequestDto { Email = identityUser.Email, UserId = identityUser.Id }
+        );
+
+        return Ok(accessTokenDto);
       }
     }
   }
