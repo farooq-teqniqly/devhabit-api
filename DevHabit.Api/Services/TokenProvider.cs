@@ -16,14 +16,17 @@ namespace DevHabit.Api.Services
 
     public TokenProvider(
       IOptions<JwtAuthOptions> options,
+      IValidator<JwtAuthOptions> jwtAuthOptionsValidator,
       IValidator<TokenRequestDto> tokenRequestDtoValidator
     )
     {
       ArgumentNullException.ThrowIfNull(options);
+      ArgumentNullException.ThrowIfNull(jwtAuthOptionsValidator);
       ArgumentNullException.ThrowIfNull(tokenRequestDtoValidator);
 
       _jwtAuthOptions = options.Value;
       _tokenRequestDtoValidator = tokenRequestDtoValidator;
+      jwtAuthOptionsValidator.ValidateAndThrow(_jwtAuthOptions);
     }
 
     public AccessTokensDto CreateToken(TokenRequestDto tokenRequest)
