@@ -104,6 +104,10 @@ dotnet_diagnostic.CA2007.severity = none
 # CA1031: Do not catch general exception types
 dotnet_diagnostic.CA1031.severity = none
 
+[DevHabit.Api/Settings/*.cs]
+# CA1812: Avoid uninstantiated internal classes
+dotnet_diagnostic.CA1812.severity = none
+
 [DevHabit.Api/Entities/*.cs]
 # CA1812: Avoid uninstantiated internal classes
 dotnet_diagnostic.CA1812.severity = none
@@ -126,7 +130,7 @@ dotnet_diagnostic.CA1812.severity = none
 # CA1812: Avoid uninstantiated internal classes
 dotnet_diagnostic.CA1812.severity = none
 
-[DevHabit.Api/Migrations/Application/*.cs]
+[DevHabit.Api/Migrations/**/*.cs]
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
