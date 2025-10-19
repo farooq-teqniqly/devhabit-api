@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using DevHabit.Api.Dtos.Auth;
 using DevHabit.Api.Settings;
@@ -38,10 +39,8 @@ namespace DevHabit.Api.Services
       return new AccessTokensDto(GenerateAccessToken(tokenRequest), GenerateRefreshToken());
     }
 
-    private static string GenerateRefreshToken()
-    {
-      return string.Empty;
-    }
+    private static string GenerateRefreshToken() =>
+      Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 
     private string GenerateAccessToken(TokenRequestDto tokenRequest)
     {

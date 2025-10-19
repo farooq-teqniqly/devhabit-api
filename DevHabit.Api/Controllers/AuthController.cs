@@ -3,13 +3,17 @@ using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Auth;
 using DevHabit.Api.Dtos.Users;
+using DevHabit.Api.Entities;
 using DevHabit.Api.Services;
+using DevHabit.Api.Settings;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Options;
 
 namespace DevHabit.Api.Controllers
 {
@@ -21,6 +25,7 @@ namespace DevHabit.Api.Controllers
   {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly ApplicationIdentityDbContext _identityDbContext;
+    private readonly JwtAuthOptions _jwtAuthOptions;
     private readonly TokenProvider _tokenProvider;
     private readonly UserManager<IdentityUser> _userManager;
 
@@ -28,18 +33,21 @@ namespace DevHabit.Api.Controllers
       ApplicationIdentityDbContext identityDbContext,
       UserManager<IdentityUser> userManager,
       ApplicationDbContext applicationDbContext,
-      TokenProvider tokenProvider
+      TokenProvider tokenProvider,
+      IOptions<JwtAuthOptions> jwtAuthOptions
     )
     {
       ArgumentNullException.ThrowIfNull(identityDbContext);
       ArgumentNullException.ThrowIfNull(userManager);
       ArgumentNullException.ThrowIfNull(applicationDbContext);
       ArgumentNullException.ThrowIfNull(tokenProvider);
+      ArgumentNullException.ThrowIfNull(jwtAuthOptions);
 
       _identityDbContext = identityDbContext;
       _userManager = userManager;
       _applicationDbContext = applicationDbContext;
       _tokenProvider = tokenProvider;
+      _jwtAuthOptions = jwtAuthOptions.Value;
     }
 
     [HttpPost("login")]
@@ -77,7 +85,49 @@ namespace DevHabit.Api.Controllers
         UserId = identityUser.Id,
         Email = identityUser.Email!,
       };
+
       var accessTokensDto = _tokenProvider.CreateToken(tokenRequestDto);
+
+      await CreateAndSaveRefreshToken(identityUser, accessTokensDto, HttpContext.RequestAborted)
+        .ConfigureAwait(false);
+
+      return Ok(accessTokensDto);
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AccessTokensDto>> Refresh(
+      [FromBody] RefreshTokenDto refreshTokenDto
+    )
+    {
+      var refreshToken = await _identityDbContext
+        .RefreshTokens.Include(rt => rt.User)
+        .FirstOrDefaultAsync(rt => rt.Token == refreshTokenDto.Token, HttpContext.RequestAborted)
+        .ConfigureAwait(false);
+
+      if (refreshToken is null)
+      {
+        return Unauthorized();
+      }
+
+      if (refreshToken.ExpiresAtUtc < DateTimeOffset.UtcNow)
+      {
+        return Unauthorized();
+      }
+
+      var tokenRequestDto = new TokenRequestDto
+      {
+        UserId = refreshToken.User.Id,
+        Email = refreshToken.User.Email!,
+      };
+      var accessTokensDto = _tokenProvider.CreateToken(tokenRequestDto);
+
+      refreshToken.Token = accessTokensDto.RefreshToken;
+
+      refreshToken.ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(
+        _jwtAuthOptions.RefreshTokenExpirationInDays
+      );
+
+      await _identityDbContext.SaveChangesAsync(HttpContext.RequestAborted).ConfigureAwait(false);
 
       return Ok(accessTokensDto);
     }
@@ -146,14 +196,38 @@ namespace DevHabit.Api.Controllers
           .SaveChangesAsync(HttpContext.RequestAborted)
           .ConfigureAwait(false);
 
-        await transaction.CommitAsync(HttpContext.RequestAborted).ConfigureAwait(false);
-
-        var accessTokenDto = _tokenProvider.CreateToken(
+        var accessTokensDto = _tokenProvider.CreateToken(
           new TokenRequestDto { Email = identityUser.Email, UserId = identityUser.Id }
         );
 
-        return Ok(accessTokenDto);
+        await CreateAndSaveRefreshToken(identityUser, accessTokensDto, HttpContext.RequestAborted)
+          .ConfigureAwait(false);
+
+        await transaction.CommitAsync(HttpContext.RequestAborted).ConfigureAwait(false);
+
+        return Ok(accessTokensDto);
       }
+    }
+
+    private async Task CreateAndSaveRefreshToken(
+      IdentityUser identityUser,
+      AccessTokensDto accessTokenDto,
+      CancellationToken cancellationToken
+    )
+    {
+      var refreshToken = new RefreshToken
+      {
+        Id = Guid.CreateVersion7(),
+        UserId = identityUser.Id,
+        Token = accessTokenDto.RefreshToken,
+        ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(_jwtAuthOptions.RefreshTokenExpirationInDays),
+      };
+
+      await _identityDbContext
+        .RefreshTokens.AddAsync(refreshToken, cancellationToken)
+        .ConfigureAwait(false);
+
+      await _identityDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
   }
 }

@@ -1,3 +1,5 @@
+using DevHabit.Api.Database.Configurations;
+using DevHabit.Api.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +10,8 @@ namespace DevHabit.Api.Database
   {
     public ApplicationIdentityDbContext(DbContextOptions<ApplicationIdentityDbContext> options)
       : base(options) { }
+
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -23,6 +27,8 @@ namespace DevHabit.Api.Database
       builder.Entity<IdentityUserClaim<string>>().ToTable("asp_net_user_claims");
       builder.Entity<IdentityUserLogin<string>>().ToTable("asp_net_user_logins");
       builder.Entity<IdentityUserToken<string>>().ToTable("asp_net_user_tokens");
+
+      builder.ApplyConfiguration(new RefreshTokenConfiguration());
     }
   }
 }

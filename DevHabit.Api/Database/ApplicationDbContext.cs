@@ -1,3 +1,4 @@
+using DevHabit.Api.Database.Configurations;
 using DevHabit.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,10 @@ namespace DevHabit.Api.Database
       ArgumentNullException.ThrowIfNull(modelBuilder);
 
       modelBuilder.HasDefaultSchema(Schemas.Application);
-      modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+      modelBuilder.ApplyConfiguration(new HabitConfiguration());
+      modelBuilder.ApplyConfiguration(new HabitTagConfiguration());
+      modelBuilder.ApplyConfiguration(new TagConfiguration());
+      modelBuilder.ApplyConfiguration(new UserConfiguration());
     }
   }
 }
