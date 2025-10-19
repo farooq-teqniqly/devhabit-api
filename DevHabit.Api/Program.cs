@@ -92,7 +92,7 @@ builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
 {
   settings.DisableTracing = false;
   settings.DisableHealthChecks = false;
-  settings.DisableRetry = false;
+  settings.DisableRetry = true;
 });
 
 builder.Services.AddSingleton<SortMappingProvider>();
