@@ -172,6 +172,28 @@ namespace DevHabit.Api.Migrations.Identity
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "refresh_tokens",
+                schema: "identity",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    expires_at_utc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    token = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    user_id = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_refresh_tokens", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_refresh_tokens_users_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "identity",
+                        principalTable: "asp_net_users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_role_claims_role_id",
                 schema: "identity",
@@ -217,6 +239,19 @@ namespace DevHabit.Api.Migrations.Identity
                 column: "normalized_user_name",
                 unique: true,
                 filter: "[normalized_user_name] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_refresh_tokens_token",
+                schema: "identity",
+                table: "refresh_tokens",
+                column: "token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_refresh_tokens_user_id",
+                schema: "identity",
+                table: "refresh_tokens",
+                column: "user_id");
         }
 
         /// <inheritdoc />
@@ -240,6 +275,10 @@ namespace DevHabit.Api.Migrations.Identity
 
             migrationBuilder.DropTable(
                 name: "asp_net_user_tokens",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "refresh_tokens",
                 schema: "identity");
 
             migrationBuilder.DropTable(

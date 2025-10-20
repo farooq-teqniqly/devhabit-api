@@ -8,6 +8,7 @@ using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
 using DevHabit.Api.Services.Sorting;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace DevHabit.Api.Controllers
 {
   [ApiController]
   [Route("habits")]
+  [Authorize]
   [Produces(MediaTypeNames.Application.Json, ApplicationMediaTypes.DevHabitApi)]
   public sealed class HabitsController : ControllerBase
   {

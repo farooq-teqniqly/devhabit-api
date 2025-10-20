@@ -1,17 +1,22 @@
+using System.Text;
 using DevHabit.Api.CustomMediaTypes;
 using DevHabit.Api.Database;
 using DevHabit.Api.Dtos.Habits;
 using DevHabit.Api.Entities;
 using DevHabit.Api.Extensions;
 using DevHabit.Api.Middleware;
+using DevHabit.Api.Services;
 using DevHabit.Api.Services.Sorting;
+using DevHabit.Api.Settings;
 using DevHabit.ServiceDefaults;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
@@ -95,15 +100,41 @@ builder.EnrichSqlServerDbContext<ApplicationDbContext>(settings =>
   settings.DisableRetry = true;
 });
 
+builder
+  .Services.AddIdentity<IdentityUser, IdentityRole>()
+  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
+
+builder.Services.Configure<JwtAuthOptions>(builder.Configuration.GetSection("Jwt"));
+
+var jwtAuthOptions =
+  builder.Configuration.GetSection("Jwt").Get<JwtAuthOptions>()
+  ?? throw new InvalidOperationException("Jwt auth settings not specified.");
+
+builder
+  .Services.AddAuthentication(opts =>
+  {
+    opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
+  .AddJwtBearer(opts =>
+  {
+    opts.TokenValidationParameters = new TokenValidationParameters
+    {
+      ValidIssuer = jwtAuthOptions.Issuer,
+      ValidAudience = jwtAuthOptions.Audience,
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtAuthOptions.Key)),
+    };
+  });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<TokenProvider>();
+
 builder.Services.AddSingleton<SortMappingProvider>();
 
 builder.Services.AddSingleton<ISortMappingDefinition, SortMappingDefinition<HabitDto, Habit>>(_ =>
   HabitMappings.SortMapping
 );
-
-builder
-  .Services.AddIdentity<IdentityUser, IdentityRole>()
-  .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
 var app = builder.Build();
 
@@ -115,9 +146,8 @@ if (app.Environment.IsDevelopment())
   await app.ApplyMigrationsAsync();
 }
 
-app.UseHttpsRedirection();
 app.UseExceptionHandler();
-app.UseRouting();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

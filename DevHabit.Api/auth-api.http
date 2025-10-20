@@ -5,9 +5,9 @@ Content-Type: application/json
 Accept: application/vnd.teqniqly.devhabit+json
 
 {
-  "email": "foo2@bar.com",
+  "email": "foo9@bar.com",
   "password": "Hello123!",
   "confirmPassword": "Hello123!",
-  "name": "Bubba Gump2"
+  "name": "Bubba Gump9"
 }
 ###
